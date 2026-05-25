@@ -22,127 +22,330 @@ header{background:var(--sur);border-bottom:1px solid var(--brd);padding:13px 24p
 .slbl{font-size:10px;color:var(--tx2);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
 .sw{position:relative}
 .si{width:100%;background:var(--bg);border:1px solid var(--brd);border-radius:7px;padding:8px 30px 8px 34px;color:var(--tx);font-size:12px;font-family:'IBM Plex Mono',monospace;outline:none;transition:border-color .2s;text-transform:uppercase}
+.si::placeholder{color:var(--tx3);text-transform:none;font-size:11px}
 .si:focus{border-color:var(--acc)}
 .s-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:14px;pointer-events:none}
-.s-clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx3);cursor:pointer;font-size:13px;display:none}
-.ac{background:var(--sur2);border:1px solid var(--brd);border-radius:0 0 7px 7px;max-height:260px;overflow-y:auto;display:none;position:absolute;width:100%;z-index:100}
+.s-clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx3);cursor:pointer;font-size:13px;display:none;line-height:1}
+.s-clr:hover{color:var(--tx2)}
+.ac{background:var(--sur2);border:1px solid var(--brd);border-top:none;border-radius:0 0 7px 7px;max-height:260px;overflow-y:auto;display:none;position:absolute;width:100%;top:100%;left:0;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .aci{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--brd)}
-.aci:hover{background:var(--bg)}
-.aci-rfc{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--acc);font-weight:600}
-.aci-nom{font-size:11px;color:var(--tx2);margin-top:2px}
+.aci:last-child{border-bottom:none}
+.aci:hover,.aci.act{background:var(--bg)}
+.aci-rfc{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--acc);font-weight:600;letter-spacing:.04em}
+.aci-nom{font-size:11px;color:var(--tx2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aci-tags{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap}
+.tag{font-size:9px;padding:1px 5px;border-radius:9px;font-family:'IBM Plex Mono',monospace;font-weight:600}
+.tag-c{background:rgba(0,217,163,.12);color:var(--acc);border:1px solid rgba(0,217,163,.2)}
+.tag-l{background:rgba(14,165,233,.12);color:var(--acc2);border:1px solid rgba(14,165,233,.2)}
+.tag-f{background:rgba(168,85,247,.12);color:var(--acc4);border:1px solid rgba(168,85,247,.2)}
 .slist{padding:10px 12px;flex:1;overflow-y:auto}
-.ri{padding:6px 8px;border-radius:5px;cursor:pointer;margin-bottom:1px;display:flex;align-items:center;gap:8px}
-.ri:hover,.ri.act{background:var(--sur2)}
-.ri-rfc{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--acc);min-width:100px}
+.s-sec-lbl{font-size:9px;color:var(--tx3);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;padding:0 2px}
+.ri{padding:6px 8px;border-radius:5px;cursor:pointer;transition:background .1s;margin-bottom:1px;display:flex;align-items:center;gap:8px}
+.ri:hover{background:var(--sur2)}
+.ri.act{background:var(--sur2);border-left:2px solid var(--acc);padding-left:6px}
+.ri-rfc{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--acc);min-width:100px;flex-shrink:0}
 .ri-nom{font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-dots{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
+.rdot{width:5px;height:5px;border-radius:50%}
 .right{display:flex;flex-direction:column;overflow:hidden}
 .loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--tx2)}
 .spinner{width:28px;height:28px;border:2px solid var(--brd);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--tx3);display:none}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--tx3);display:none}
+.empty-ico{font-size:40px;opacity:.2}
+.empty h2{font-size:14px;font-weight:400;color:var(--tx3)}
+.empty p{font-size:11px}
 .rp{flex:1;overflow-y:auto;padding:20px;display:none}
 .rp.on{display:block}
 .ph{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--brd)}
-.av{width:44px;height:44px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;color:#0d1117}
-.pi-rfc{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx2);text-transform:uppercase;margin-bottom:3px}
-.pi-nom{font-size:18px;font-weight:600;margin-bottom:6px}
-.tot{margin-left:auto;text-align:right}
-.tot-n{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--acc)}
+.av{width:44px;height:44px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;color:#0d1117;flex-shrink:0}
+.pi{flex:1;min-width:0}
+.pi-rfc{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.pi-nom{font-size:18px;font-weight:600;line-height:1.2;margin-bottom:6px}
+.pi-chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:10px;padding:2px 8px;border-radius:11px;font-family:'IBM Plex Mono',monospace;font-weight:600}
+.chip-c{background:rgba(0,217,163,.12);color:var(--acc);border:1px solid rgba(0,217,163,.25)}
+.chip-l{background:rgba(14,165,233,.12);color:var(--acc2);border:1px solid rgba(14,165,233,.25)}
+.chip-f{background:rgba(168,85,247,.12);color:var(--acc4);border:1px solid rgba(168,85,247,.25)}
+.tot{margin-left:auto;text-align:right;flex-shrink:0}
+.tot-n{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--acc);line-height:1}
+.tot-l{font-size:10px;color:var(--tx2);margin-top:2px}
 .fsec{margin-bottom:20px}
-.fhdr{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;cursor:pointer;margin-bottom:8px}
+.fhdr{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;cursor:pointer;user-select:none;transition:background .15s;margin-bottom:8px}
 .fhdr:hover{background:var(--sur2)}
+.fdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.src-c .fdot{background:var(--acc)}
+.src-l .fdot{background:var(--acc2)}
+.src-f .fdot{background:var(--acc4)}
 .fnam{font-size:12px;font-weight:600;flex:1}
+.src-c .fnam{color:var(--acc)}
+.src-l .fnam{color:var(--acc2)}
+.src-f .fnam{color:var(--acc4)}
+.fcnt{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx2)}
+.chev{font-size:10px;color:var(--tx3);transition:transform .2s}
+.fhdr.col .chev{transform:rotate(-90deg)}
 .fbody{display:block}
 .fbody.hid{display:none}
 .ssec{margin-bottom:8px;margin-left:16px}
-.sttl{font-size:10px;color:var(--tx2);font-family:'IBM Plex Mono',monospace;padding:5px 10px;background:var(--sur);border:1px solid var(--brd);border-bottom:none}
-.tw{overflow-x:auto;border:1px solid var(--brd)}
+.sttl{font-size:10px;color:var(--tx2);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em;padding:5px 10px;background:var(--sur);border-radius:4px 4px 0 0;border:1px solid var(--brd);border-bottom:none;display:flex;justify-content:space-between;align-items:center}
+.sbdg{background:var(--bg);border:1px solid var(--brd);border-radius:9px;padding:1px 7px;font-size:9px;color:var(--tx2)}
+.tw{overflow-x:auto;border:1px solid var(--brd);border-radius:0 0 4px 4px}
 table{width:100%;border-collapse:collapse;font-size:11px}
-th{padding:5px 10px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--tx2);text-transform:uppercase}
-td{padding:6px 10px;border-bottom:1px solid var(--brd);color:var(--tx)}
+thead tr{background:var(--sur2);border-bottom:1px solid var(--brd)}
+th{padding:5px 10px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;font-weight:400}
+td{padding:6px 10px;border-bottom:1px solid var(--brd);color:var(--tx);white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--sur2)}
+.nc{font-family:'IBM Plex Mono',monospace;color:var(--acc2);font-size:10px}
+.dc{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--warn)}
+.fc-cell{font-size:11px;color:var(--acc4);font-weight:600}
 .rn{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--tx3)}
-.fac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;padding:10px;background:var(--sur);border:1px solid var(--brd)}
-.fac-info{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;padding:10px;background:var(--sur);border:1px solid var(--brd);border-top:none}
-.fac-key{font-size:9px;color:var(--tx3);text-transform:uppercase}
-.fac-val{font-size:12px}
+.fac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;padding:10px;background:var(--sur);border:1px solid var(--brd);border-radius:0 0 4px 4px}
+.fac-info{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;padding:10px;background:var(--sur);border:1px solid var(--brd);border-top:none;border-bottom:none}
+.fac-field{display:flex;flex-direction:column;gap:2px}
+.fac-key{font-size:9px;color:var(--tx3);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.fac-val{font-size:12px;color:var(--tx)}
 .mes-card{background:var(--bg);border:1px solid var(--brd);border-radius:6px;padding:8px 10px;border-left:3px solid var(--acc4)}
-.mes-nom{font-size:9px;color:var(--tx2);margin-bottom:3px}
-.mes-val{font-size:11px;color:var(--acc4);font-weight:600}
+.mes-nom{font-size:9px;color:var(--tx2);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.mes-val{font-size:11px;color:var(--acc4);font-weight:600;font-family:'IBM Plex Mono',monospace}
 .mes-card.empty-mes{border-left-color:var(--brd);opacity:.4}
+.mes-card.empty-mes .mes-val{color:var(--tx3)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--tx3)}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">HM</div>
-  <div class="hdr-txt"><h1>Control de Licencias — Hospital de la Mujer</h1></div>
+  <div class="hdr-txt">
+    <h1>Control de Licencias — Hospital de la Mujer</h1>
+    <p>Consulta unificada · Licencias Médicas, Licencias con Goce de Sueldo y Facilidades Administrativas</p>
+  </div>
   <div class="pills">
     <div class="pill">Personas: <b id="sp">—</b></div>
     <div class="pill">Registros: <b id="sr">—</b></div>
+    <div class="pill">Archivos: <b>4</b></div>
   </div>
 </header>
+
 <div class="layout">
   <div class="left">
-    <div class="sbox"><input type="text" class="si" id="si" placeholder="RFC o nombre..."></div>
-    <div class="slist"><div id="rl"></div></div>
+    <div class="sbox">
+      <div class="slbl">Buscar por RFC o nombre</div>
+      <div class="sw" id="sw">
+        <span class="s-ico">⌕</span>
+        <input type="text" class="si" id="si" placeholder="RFC completo o parte del nombre" autocomplete="off" spellcheck="false">
+        <button class="s-clr" id="sc">✕</button>
+        <div class="ac" id="ac"></div>
+      </div>
+    </div>
+    <div class="slist">
+      <div class="s-sec-lbl" id="sl">Recientes</div>
+      <div id="rl"></div>
+    </div>
   </div>
+
   <div class="right">
-    <div class="loading" id="ld"><div class="spinner"></div></div>
-    <div class="empty" id="em"><h2>Busca una persona</h2></div>
+    <div class="loading" id="ld">
+      <div class="spinner"></div>
+      <span style="font-size:12px">Descomprimiendo datos...</span>
+    </div>
+    <div class="empty" id="em">
+      <div class="empty-ico">⚕</div>
+      <h2>Busca a una persona por RFC o nombre</h2>
+      <p>Escribe en el buscador de la izquierda</p>
+    </div>
     <div class="rp" id="rp"></div>
   </div>
 </div>
+
 <script>
-const MAPA_FUENTES = {
+let DB=null,hist=[],cur=null,acItems=[],acIdx=-1;
+
+// Nombre a mostrar por fuente
+const NOMBRE_FUENTE = {
   "Control 2023-2024": "Licencias Médicas",
-  "LCGS 2025": "Licencias con Goce de Sueldo",
-  "Facilidades 2026": "Facilidades Administrativas"
+  "LCGS 2025":         "Licencias con Goce de Sueldo",
+  "Facilidades 2026":  "Facilidades Administrativas"
 };
 
-let DB=null,hist=[];
+// Hoja única permitida por fuente (si no está aquí, se muestran todas)
+const HOJA_VALIDA = {
+  "Control 2023-2024": "Control general",
+  "LCGS 2025":         "LCGS"
+};
 
 async function loadData(){
   try{
     const r = await fetch('./data.json?t=' + Date.now());
+    if(!r.ok) throw new Error('No se pudo cargar data.json');
     DB = await r.json();
+
+    let tr=0;
+    Object.values(DB).forEach(p=>
+      Object.values(p.fuentes).forEach(s=>
+        Object.values(s).forEach(r=>tr+=r.length)
+      )
+    );
+    document.getElementById('sp').textContent=Object.keys(DB).length.toLocaleString('es-MX');
+    document.getElementById('sr').textContent=tr.toLocaleString('es-MX');
     document.getElementById('ld').style.display='none';
     document.getElementById('em').style.display='flex';
     setupSearch();
-  }catch(e){ console.error(e); }
+  }catch(e){
+    document.getElementById('ld').innerHTML='<span style="color:#f87171;font-size:12px">Error: '+e.message+'</span>';
+    console.error(e);
+  }
 }
 
-function esHojaValida(sname, shName) {
-  if (sname === "Control 2023-2024") return shName === "Control general";
-  if (sname === "LCGS 2025") return shName === "LCGS";
-  return true;
+function setupSearch(){
+  const inp=document.getElementById('si'),ac=document.getElementById('ac'),sc=document.getElementById('sc');
+  inp.addEventListener('input',()=>{
+    const q=inp.value.trim().toUpperCase();
+    sc.style.display=q?'block':'none';
+    if(q.length<2){hideAC();return;}
+    const res=searchDB(q,14);
+    if(!res.length){hideAC();return;}
+    acItems=res;acIdx=-1;
+    ac.innerHTML=res.map((p,i)=>`<div class="aci" data-rfc="${p.rfc}" data-i="${i}">
+      <div class="aci-rfc">${hl(p.rfc,q)}</div>
+      <div class="aci-nom">${hl(p.nombre||'(sin nombre)',q)}</div>
+      <div class="aci-tags">${Object.keys(p.fuentes).map(s=>`<span class="tag ${tc(s)}">${ts(s)}</span>`).join('')}</div>
+    </div>`).join('');
+    ac.querySelectorAll('.aci').forEach(el=>el.addEventListener('mousedown',e=>{
+      e.preventDefault();pick(el.dataset.rfc);inp.value='';sc.style.display='none';
+    }));
+    ac.style.display='block';
+  });
+  inp.addEventListener('keydown',e=>{
+    if(!acItems.length)return;
+    const els=ac.querySelectorAll('.aci');
+    if(e.key==='ArrowDown'){e.preventDefault();acIdx=Math.min(acIdx+1,els.length-1);els.forEach((el,i)=>el.classList.toggle('act',i===acIdx));}
+    else if(e.key==='ArrowUp'){e.preventDefault();acIdx=Math.max(acIdx-1,-1);els.forEach((el,i)=>el.classList.toggle('act',i===acIdx));}
+    else if(e.key==='Enter'){e.preventDefault();const t=acIdx>=0?acItems[acIdx]:acItems[0];if(t){pick(t.rfc);inp.value='';sc.style.display='none';}}
+    else if(e.key==='Escape')hideAC();
+  });
+  sc.addEventListener('click',()=>{inp.value='';sc.style.display='none';hideAC();inp.focus();});
+  document.addEventListener('click',e=>{if(!e.target.closest('#sw'))hideAC();});
+}
+
+function hideAC(){document.getElementById('ac').style.display='none';acItems=[];acIdx=-1;}
+
+function searchDB(q,lim){
+  const res=[];
+  for(const[rfc,d]of Object.entries(DB)){
+    if(res.length>=lim)break;
+    if(rfc.includes(q)||(d.nombre&&d.nombre.toUpperCase().includes(q)))res.push(d);
+  }
+  res.sort((a,b)=>(a.rfc.startsWith(q)?0:1)-(b.rfc.startsWith(q)?0:1));
+  return res.slice(0,lim);
+}
+
+function hl(t,q){
+  if(!t)return t;
+  const i=t.toUpperCase().indexOf(q);if(i<0)return t;
+  return t.slice(0,i)+'<mark style="background:rgba(0,217,163,.2);color:var(--acc);border-radius:2px">'+t.slice(i,i+q.length)+'</mark>'+t.slice(i+q.length);
+}
+
+function pick(rfc){
+  hideAC();
+  const p=DB[rfc];if(!p)return;
+  cur=rfc;
+  const ei=hist.indexOf(rfc);if(ei!==-1)hist.splice(ei,1);
+  hist.unshift(rfc);if(hist.length>25)hist.pop();
+  renderSide();renderPerson(p);
+}
+
+function renderSide(){
+  document.getElementById('sl').textContent='Recientes';
+  document.getElementById('rl').innerHTML=hist.map(r=>{
+    const p=DB[r];if(!p)return'';
+    const dots=Object.keys(p.fuentes).map(s=>`<div class="rdot" style="background:${sc2(s)}"></div>`).join('');
+    return`<div class="ri ${r===cur?'act':''}" onclick="pick('${r}')">
+      <span class="ri-rfc">${r}</span>
+      <span class="ri-nom">${p.nombre||'—'}</span>
+      <div class="ri-dots">${dots}</div>
+    </div>`;
+  }).join('');
 }
 
 function renderPerson(p){
-  let h=`<div class="ph"><div class="av">${p.nombre?p.nombre[0]:'?'}</div><div class="pi"><div class="pi-rfc">RFC: ${p.rfc}</div><div class="pi-nom">${p.nombre||'Sin nombre'}</div></div></div>`;
-  
-  for(const[sname, sheets] of Object.entries(p.fuentes)){
-    const hojasValidas = Object.entries(sheets).filter(([sh]) => esHojaValida(sname, sh));
-    if(hojasValidas.length === 0) continue;
+  let totalR=0;
+  Object.values(p.fuentes).forEach(s=>Object.values(s).forEach(r=>totalR+=r.length));
 
-    h+=`<div class="fsec"><div class="fhdr" onclick="toggleF(this)"><div class="fnam">${MAPA_FUENTES[sname]||sname}</div></div><div class="fbody">`;
-    
-    for(const[shName, recs] of hojasValidas){
+  let h=`<div class="ph">
+    <div class="av">${getIni(p.nombre)}</div>
+    <div class="pi">
+      <div class="pi-rfc">RFC: ${p.rfc}</div>
+      <div class="pi-nom">${p.nombre||'(Sin nombre registrado)'}</div>
+      <div class="pi-chips">${Object.keys(p.fuentes).map(s=>`<span class="chip ${cc2(s)}">${NOMBRE_FUENTE[s]||s}</span>`).join('')}</div>
+    </div>
+    <div class="tot"><div class="tot-n">${totalR}</div><div class="tot-l">registros totales</div></div>
+  </div>`;
+
+  for(const[sname,sheets]of Object.entries(p.fuentes)){
+    const label = NOMBRE_FUENTE[sname] || sname;
+    const hojaReq = HOJA_VALIDA[sname]; // undefined = mostrar todas
+    const cls=sc3(sname);
+
+    // Contar solo registros de hojas válidas
+    let st=0;
+    for(const[shName,recs]of Object.entries(sheets)){
+      if(hojaReq && shName!==hojaReq) continue;
+      st+=recs.length;
+    }
+
+    h+=`<div class="fsec"><div class="fhdr ${cls}" onclick="toggleF(this)">
+      <div class="fdot"></div><div class="fnam">${label}</div>
+      <div class="fcnt">${st} registro${st!==1?'s':''}</div><span class="chev">▾</span>
+    </div><div class="fbody">`;
+
+    for(const[shName,recs]of Object.entries(sheets)){
+      // Filtrar hojas no permitidas
+      if(hojaReq && shName!==hojaReq) continue;
       if(!recs.length) continue;
-      h+=`<div class="ssec"><div class="sttl">${shName} (${recs.length} reg.)</div>`;
-      if(sname.includes('Facilidad')){
-        h+=`<div class="fac-grid">`;
-        recs.forEach(rec => {
-          ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'].forEach(mes => {
-            const val = rec[`FACILIDAD ${mes} 2026`] || '';
-            h+=`<div class="mes-card ${val?'':'empty-mes'}"><div class="mes-nom">${mes}</div><div class="mes-val">${val||'—'}</div></div>`;
+
+      const isFac=sname.includes('Facilidad');
+      h+=`<div class="ssec"><div class="sttl">${shName}<span class="sbdg">${recs.length} reg.</span></div>`;
+
+      if(isFac){
+        const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+        recs.forEach((rec,ri)=>{
+          if(recs.length>1)
+            h+=`<div style="padding:4px 10px;font-size:9px;color:var(--tx3);font-family:'IBM Plex Mono',monospace;background:var(--sur);border:1px solid var(--brd);border-bottom:none">REGISTRO ${ri+1}</div>`;
+          const infoKeys=['TARJETA','TURNO','ENTRADA','SALIDA','SERVICIO'];
+          const infoFields=infoKeys.filter(k=>rec[k]);
+          if(infoFields.length){
+            h+=`<div class="fac-info">`;
+            infoFields.forEach(k=>{
+              h+=`<div class="fac-field"><span class="fac-key">${k}</span><span class="fac-val">${esc(rec[k])}</span></div>`;
+            });
+            h+=`</div>`;
+          }
+          h+=`<div class="fac-grid">`;
+          MESES.forEach(mes=>{
+            const key=`FACILIDAD ${mes} 2026`;
+            const val=rec[key]||'';
+            h+=`<div class="mes-card ${val?'':'empty-mes'}">
+              <div class="mes-nom">${mes}</div>
+              <div class="mes-val">${val||'—'}</div>
+            </div>`;
           });
+          h+=`</div>`;
         });
-        h+=`</div>`;
       } else {
-        const keys = Array.from(new Set(recs.flatMap(r => Object.keys(r))));
-        const dk = keys.filter(k => !['RFC','R.F.C.'].includes(k));
-        h+=`<div class="tw"><table><thead><tr><th>#</th>${dk.map(k=>`<th>${k}</th>`).join('')}</tr></thead><tbody>`;
-        recs.forEach((rec, ri) => {
-          h+=`<tr><td class="rn">${ri+1}</td>${dk.map(k => `<td>${String(rec[k]||'')}</td>`).join('')}</tr>`;
+        const keys=[];
+        recs.forEach(r=>Object.keys(r).forEach(k=>{if(!keys.includes(k))keys.push(k);}));
+        const skip=['RFC','R.F.C.','COMPARACION','COMPARAR','COD_RHNET'];
+        const dk=keys.filter(k=>!skip.includes(k));
+        h+=`<div class="tw"><table><thead><tr><th>#</th>${dk.map(k=>`<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>`;
+        recs.forEach((rec,ri)=>{
+          h+=`<tr><td class="rn">${ri+1}</td>${dk.map(k=>{
+            const v=rec[k]!=null?rec[k]:'';
+            return`<td class="${ccc(k,v)}" title="${esc(v)}">${esc(v)}</td>`;
+          }).join('')}</tr>`;
         });
         h+=`</tbody></table></div>`;
       }
@@ -150,18 +353,53 @@ function renderPerson(p){
     }
     h+=`</div></div>`;
   }
-  document.getElementById('rp').innerHTML = h;
-  document.getElementById('rp').className = 'rp on';
+
+  const rp=document.getElementById('rp');
+  rp.innerHTML=h;
+  rp.classList.add('on');
+  rp.scrollTop=0;
   document.getElementById('em').style.display='none';
 }
 
-function toggleF(hdr){ hdr.nextElementSibling.classList.toggle('hid'); }
-function setupSearch(){ document.getElementById('si').addEventListener('input', e=>{
-    const q = e.target.value.toUpperCase();
-    if(q.length < 2) return;
-    const match = Object.values(DB).find(p => p.rfc.includes(q) || (p.nombre && p.nombre.toUpperCase().includes(q)));
-    if(match) renderPerson(match);
-});}
+function toggleF(hdr){
+  hdr.classList.toggle('col');
+  hdr.nextElementSibling.classList.toggle('hid');
+}
+
+function sc2(n){
+  return n.includes('2023')||n.includes('Control')?'var(--acc)':n.includes('2025')||n.includes('LCGS')?'var(--acc2)':'var(--acc4)';
+}
+function sc3(n){
+  return n.includes('2023')||n.includes('Control')?'src-c':n.includes('2025')||n.includes('LCGS')?'src-l':'src-f';
+}
+function cc2(n){
+  return n.includes('2023')||n.includes('Control')?'chip-c':n.includes('2025')||n.includes('LCGS')?'chip-l':'chip-f';
+}
+function tc(n){
+  return n.includes('2023')||n.includes('Control')?'tag-c':n.includes('2025')||n.includes('LCGS')?'tag-l':'tag-f';
+}
+function ts(n){
+  return n.includes('2023')?'CTR 23-24':n.includes('2025')||n.includes('LCGS')?'LCGS 25':'FAC 26';
+}
+function getIni(n){
+  if(!n)return'?';
+  const p=n.replace(/,/g,' ').replace(/\//g,' ').split(/\s+/).filter(Boolean);
+  return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():n[0].toUpperCase();
+}
+function ccc(k,v){
+  // Solo aplica color si la clave dice "fecha" — NO toca el formato del valor
+  if(k.toLowerCase().includes('fecha')) return 'dc';
+  if(v&&!isNaN(v)&&/^\d+(\.\d+)?$/.test(String(v))) return 'nc';
+  return '';
+}
+function esc(s){
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
 loadData();
 </script>
 </body>
