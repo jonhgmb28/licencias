@@ -343,7 +343,10 @@ function renderPerson(p){
         h+=`<div class="tw"><table><thead><tr><th>#</th>${dk.map(k=>`<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>`;
         recs.forEach((rec,ri)=>{
           h+=`<tr><td class="rn">${ri+1}</td>${dk.map(k=>{
-            const v=rec[k]!=null?rec[k]:'';
+            let v = rec[k]!=null?rec[k]:'';
+            if (k.toLowerCase().includes('entrada') || k.toLowerCase().includes('salida') || k.toLowerCase().includes('fecha')) {
+                v = excelDateToJSDate(v);
+            }
             return`<td class="${ccc(k,v)}" title="${esc(v)}">${esc(v)}</td>`;
           }).join('')}</tr>`;
         });
@@ -359,6 +362,20 @@ function renderPerson(p){
   rp.classList.add('on');
   rp.scrollTop=0;
   document.getElementById('em').style.display='none';
+}
+
+function excelDateToJSDate(serial) {
+    if (typeof serial !== 'number') return serial;
+    // La fecha base de Excel es 1899-12-30
+    const date = new Date(Math.round((serial - 25569) * 86400 * 1000));
+    
+    // Si el número es pequeño (solo hora), lo formateamos como hora
+    if (serial < 1) {
+        return date.getUTCHours().toString().padStart(2, '0') + ':' + 
+               date.getUTCMinutes().toString().padStart(2, '0');
+    }
+    // Si es fecha completa, formato DD/MM/YYYY
+    return date.toLocaleDateString('es-MX');
 }
 
 function toggleF(hdr){
