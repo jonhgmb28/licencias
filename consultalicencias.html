@@ -173,9 +173,7 @@ let DB=null,hist=[],cur=null,acItems=[],acIdx=-1;
 // ── FORMATEO ─────────────────────────────────────────────────────────────────
 
 // Detecta si el string es un ISO datetime de época 1899 (tiempo puro de Excel)
-function isExcelTime(s){
-  return typeof s==='string'&&(s.startsWith('1899-12-30T')||s.startsWith('1899-12-31T'));
-}
+function isExcelTime(s){return typeof s==='string'&&s.startsWith('1899-12-30T');}
 
 // Detecta si el string es un ISO datetime real (fecha)
 function isISODate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(s)&&!s.startsWith('1899');}
