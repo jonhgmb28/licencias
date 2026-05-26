@@ -6,7 +6,7 @@
 <title>Control de Licencias — Hospital de la Mujer</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-/* ===== TU MISMO ESTILO ORIGINAL (no modificado) ===== */
+/* ===== TU MISMO ESTILO ORIGINAL (sin cambios) ===== */
 :root{--bg:#0d1117;--sur:#161b22;--sur2:#1c2230;--brd:#30363d;--acc:#00d9a3;--acc2:#0ea5e9;--acc3:#f59e0b;--acc4:#a855f7;--warn:#f59e0b;--tx:#e6edf3;--tx2:#8b949e;--tx3:#3d444d}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
@@ -356,7 +356,7 @@ function renderSide(){
     </div>`;
   }).join('');
 }
-// ── RENDER PERSONA (MODIFICADO: mostrar TODAS las columnas) ──────────────────
+// ── RENDER PERSONA (CON FILTRO DE COLUMNAS BASURA) ──────────────────────────
 function renderPerson(p){
   let totalR=0;
   Object.values(p.fuentes).forEach(s=>Object.values(s).forEach(r=>totalR+=r.length));
@@ -388,7 +388,7 @@ function renderPerson(p){
       h+=`<div class="ssec"><div class="sttl">${shName}<span class="sbdg">${recs.length} reg.</span></div>`;
 
       if(isFac){
-        // ── FACILIDADES CARD (sin cambios) ──
+        // FACILIDADES (sin cambios)
         const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
         recs.forEach((rec,ri)=>{
           if(recs.length>1)
@@ -429,11 +429,16 @@ function renderPerson(p){
           h+=`</div>`;
         });
       } else {
-        // ── TABLA GENÉRICA: MOSTRAR TODAS LAS COLUMNAS (SIN FILTRO) ──
-        const keys=[];
-        recs.forEach(r=>Object.keys(r).forEach(k=>{if(!keys.includes(k))keys.push(k);}));
-        // ⬇️⬇️⬇️ CAMBIO AQUÍ: ya NO filtramos ninguna columna ⬇️⬇️⬇️
-        const dk = keys;   // <--- AHORA SE MUESTRAN TODAS LAS COLUMNAS
+        // TABLA GENÉRICA: Filtrar columnas basura (un solo carácter, solo dígitos, 'f', etc.)
+        const allKeys=[];
+        recs.forEach(r=>Object.keys(r).forEach(k=>{if(!allKeys.includes(k))allKeys.push(k);}));
+        // Filtrar columnas no deseadas: longitud 1, solo dígitos, o igual a 'f' (insensible)
+        const dk = allKeys.filter(k => {
+          const kk = k.trim();
+          if (kk.length === 1 || /^\d+$/.test(kk)) return false;
+          if (kk.toLowerCase() === 'f') return false;
+          return true;
+        });
         
         h+=`<div class="tw"><table><thead><tr><th>#</th>${dk.map(k=>`<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>`;
         recs.forEach((rec,ri)=>{
