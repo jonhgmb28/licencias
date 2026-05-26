@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE ht<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -6,7 +6,7 @@
 <title>Control de Licencias — Hospital de la Mujer</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-/* ===== TU MISMO ESTILO ORIGINAL (sin cambios) ===== */
+/* ===== ESTILOS ORIGINALES (se mantienen) ===== */
 :root{--bg:#0d1117;--sur:#161b22;--sur2:#1c2230;--brd:#30363d;--acc:#00d9a3;--acc2:#0ea5e9;--acc3:#f59e0b;--acc4:#a855f7;--warn:#f59e0b;--tx:#e6edf3;--tx2:#8b949e;--tx3:#3d444d}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
@@ -155,7 +155,7 @@ tbody tr:hover td{background:var(--sur2)}
   <div class="right">
     <div class="loading" id="ld">
       <div class="spinner"></div>
-      <span style="font-size:12px">Descomprimiendo datos...</span>
+      <span style="font-size:12px">Cargando datos...</span>
     </div>
     <div class="empty" id="em">
       <div class="empty-ico">⚕</div>
@@ -224,9 +224,9 @@ function parseDayPart(part,mm,yr){
 }
 function pad(d){return String(parseInt(d,10)).padStart(2,'0');}
 function fmtCell(key,val){
-  if(val===null||val===undefined||val==='')return'';
+  if(val===null||val===undefined||val==='')return'—';
   const s=String(val).trim();
-  if(!s)return'';
+  if(!s)return'—';
   const kl=key.toLowerCase();
   if(isExcelTime(s))return fmtTime(s);
   if(isISODate(s))return fmtDate(s);
@@ -356,7 +356,7 @@ function renderSide(){
     </div>`;
   }).join('');
 }
-// ── RENDER PERSONA (CON FILTRO DE COLUMNAS BASURA) ──────────────────────────
+// ── RENDER PERSONA (MUESTRA TODAS LAS COLUMNAS SIN FILTRAR, EXCEPTO EMPTY) ───
 function renderPerson(p){
   let totalR=0;
   Object.values(p.fuentes).forEach(s=>Object.values(s).forEach(r=>totalR+=r.length));
@@ -429,20 +429,15 @@ function renderPerson(p){
           h+=`</div>`;
         });
       } else {
-        // TABLA GENÉRICA: Filtrar columnas basura (un solo carácter, solo dígitos, 'f', etc.)
+        // TABLA GENÉRICA: mostrar todas las columnas (excepto "EMPTY")
         const allKeys=[];
         recs.forEach(r=>Object.keys(r).forEach(k=>{if(!allKeys.includes(k))allKeys.push(k);}));
-        // Filtrar columnas no deseadas: longitud 1, solo dígitos, o igual a 'f' (insensible)
-        const dk = allKeys.filter(k => {
-          const kk = k.trim();
-          if (kk.length === 1 || /^\d+$/.test(kk)) return false;
-          if (kk.toLowerCase() === 'f') return false;
-          return true;
-        });
+        // No filtramos por nombre de columna, excepto las que se llaman "EMPTY" (sin encabezado)
+        const dk = allKeys.filter(k => !k.startsWith('EMPTY'));
         
         h+=`<div class="tw"><table><thead><tr><th>#</th>${dk.map(k=>`<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>`;
         recs.forEach((rec,ri)=>{
-          h+=`<tr class="rn">${ri+1}</td>${dk.map(k=>{
+          h+=`<tr><td class="rn">${ri+1}</td>${dk.map(k=>{
             const raw=rec[k];
             const v=fmtCell(k,raw);
             const cls=ccc(k,String(raw||''));
