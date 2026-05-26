@@ -9,7 +9,6 @@
 :root{--bg:#0d1117;--sur:#161b22;--sur2:#1c2230;--brd:#30363d;--acc:#00d9a3;--acc2:#0ea5e9;--acc3:#f59e0b;--acc4:#a855f7;--warn:#f59e0b;--tx:#e6edf3;--tx2:#8b949e;--tx3:#3d444d}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
-/* HEADER */
 header{background:var(--sur);border-bottom:1px solid var(--brd);padding:13px 24px;display:flex;align-items:center;gap:12px}
 .logo{width:32px;height:32px;background:var(--acc);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;color:#0d1117;flex-shrink:0}
 .hdr-txt h1{font-size:13px;font-weight:600;letter-spacing:.02em}
@@ -17,9 +16,7 @@ header{background:var(--sur);border-bottom:1px solid var(--brd);padding:13px 24p
 .pills{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
 .pill{background:var(--bg);border:1px solid var(--brd);border-radius:20px;padding:3px 10px;font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--tx2);white-space:nowrap}
 .pill b{color:var(--acc)}
-/* LAYOUT */
 .layout{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 59px)}
-/* LEFT */
 .left{border-right:1px solid var(--brd);display:flex;flex-direction:column;background:var(--sur)}
 .sbox{padding:13px;border-bottom:1px solid var(--brd)}
 .slbl{font-size:10px;color:var(--tx2);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
@@ -30,7 +27,6 @@ header{background:var(--sur);border-bottom:1px solid var(--brd);padding:13px 24p
 .s-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:14px;pointer-events:none}
 .s-clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx3);cursor:pointer;font-size:13px;display:none;line-height:1}
 .s-clr:hover{color:var(--tx2)}
-/* AUTOCOMPLETE */
 .ac{background:var(--sur2);border:1px solid var(--brd);border-top:none;border-radius:0 0 7px 7px;max-height:260px;overflow-y:auto;display:none;position:absolute;width:100%;top:100%;left:0;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .aci{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--brd)}
 .aci:last-child{border-bottom:none}
@@ -38,12 +34,10 @@ header{background:var(--sur);border-bottom:1px solid var(--brd);padding:13px 24p
 .aci-rfc{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--acc);font-weight:600;letter-spacing:.04em}
 .aci-nom{font-size:11px;color:var(--tx2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aci-tags{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap}
-/* SOURCE TAGS */
 .tag{font-size:9px;padding:1px 5px;border-radius:9px;font-family:'IBM Plex Mono',monospace;font-weight:600}
 .tag-c{background:rgba(0,217,163,.12);color:var(--acc);border:1px solid rgba(0,217,163,.2)}
 .tag-l{background:rgba(14,165,233,.12);color:var(--acc2);border:1px solid rgba(14,165,233,.2)}
 .tag-f{background:rgba(168,85,247,.12);color:var(--acc4);border:1px solid rgba(168,85,247,.2)}
-/* SIDE LIST */
 .slist{padding:10px 12px;flex:1;overflow-y:auto}
 .s-sec-lbl{font-size:9px;color:var(--tx3);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;padding:0 2px}
 .ri{padding:6px 8px;border-radius:5px;cursor:pointer;transition:background .1s;margin-bottom:1px;display:flex;align-items:center;gap:8px}
@@ -53,7 +47,6 @@ header{background:var(--sur);border-bottom:1px solid var(--brd);padding:13px 24p
 .ri-nom{font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ri-dots{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
 .rdot{width:5px;height:5px;border-radius:50%}
-/* RIGHT */
 .right{display:flex;flex-direction:column;overflow:hidden}
 .loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--tx2)}
 .spinner{width:28px;height:28px;border:2px solid var(--brd);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite}
@@ -62,10 +55,8 @@ header{background:var(--sur);border-bottom:1px solid var(--brd);padding:13px 24p
 .empty-ico{font-size:40px;opacity:.2}
 .empty h2{font-size:14px;font-weight:400;color:var(--tx3)}
 .empty p{font-size:11px}
-/* RESULT */
 .rp{flex:1;overflow-y:auto;padding:20px;display:none}
 .rp.on{display:block}
-/* PERSONA HEADER */
 .ph{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--brd)}
 .av{width:44px;height:44px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;color:#0d1117;flex-shrink:0}
 .pi{flex:1;min-width:0}
@@ -79,7 +70,6 @@ header{background:var(--sur);border-bottom:1px solid var(--brd);padding:13px 24p
 .tot{margin-left:auto;text-align:right;flex-shrink:0}
 .tot-n{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--acc);line-height:1}
 .tot-l{font-size:10px;color:var(--tx2);margin-top:2px}
-/* FUENTE SECTION */
 .fsec{margin-bottom:20px}
 .fhdr{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;cursor:pointer;user-select:none;transition:background .15s;margin-bottom:8px}
 .fhdr:hover{background:var(--sur2)}
@@ -96,11 +86,9 @@ header{background:var(--sur);border-bottom:1px solid var(--brd);padding:13px 24p
 .fhdr.col .chev{transform:rotate(-90deg)}
 .fbody{display:block}
 .fbody.hid{display:none}
-/* SHEET */
 .ssec{margin-bottom:8px;margin-left:16px}
 .sttl{font-size:10px;color:var(--tx2);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em;padding:5px 10px;background:var(--sur);border-radius:4px 4px 0 0;border:1px solid var(--brd);border-bottom:none;display:flex;justify-content:space-between;align-items:center}
 .sbdg{background:var(--bg);border:1px solid var(--brd);border-radius:9px;padding:1px 7px;font-size:9px;color:var(--tx2)}
-/* TABLE */
 .tw{overflow-x:auto;border:1px solid var(--brd);border-radius:0 0 4px 4px}
 table{width:100%;border-collapse:collapse;font-size:11px}
 thead tr{background:var(--sur2);border-bottom:1px solid var(--brd)}
@@ -110,18 +98,23 @@ tr:last-child td{border-bottom:none}
 tbody tr:hover td{background:var(--sur2)}
 .nc{font-family:'IBM Plex Mono',monospace;color:var(--acc2);font-size:10px}
 .dc{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--warn)}
-.fc-cell{font-size:11px;color:var(--acc4);font-weight:600}
+.tc{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--acc);font-weight:600}
 .rn{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--tx3)}
-/* FACILIDADES SPECIAL CARD */
+/* facilidades card */
 .fac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;padding:10px;background:var(--sur);border:1px solid var(--brd);border-radius:0 0 4px 4px}
-.fac-info{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;padding:10px;background:var(--sur);border:1px solid var(--brd);border-top:none;border-bottom:none}
+.fac-info{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;padding:10px;background:var(--sur);border:1px solid var(--brd);border-top:none;border-bottom:none}
 .fac-field{display:flex;flex-direction:column;gap:2px}
 .fac-key{font-size:9px;color:var(--tx3);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
 .fac-val{font-size:12px;color:var(--tx)}
+.fac-val.time{font-family:'IBM Plex Mono',monospace;color:var(--acc);font-weight:600}
 .mes-card{background:var(--bg);border:1px solid var(--brd);border-radius:6px;padding:8px 10px;border-left:3px solid var(--acc4)}
-.mes-nom{font-size:9px;color:var(--tx2);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
-.mes-val{font-size:11px;color:var(--acc4);font-weight:600;font-family:'IBM Plex Mono',monospace}
-.mes-card.empty-mes{border-left-color:var(--brd);opacity:.4}
+.mes-nom{font-size:9px;color:var(--tx2);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.mes-val{font-size:11px;color:var(--acc4);font-weight:600;font-family:'IBM Plex Mono',monospace;word-break:break-all;white-space:normal;line-height:1.5}
+/* días chips dentro de mes-card */
+.day-chips{display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
+.day-chip{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);border-radius:4px;padding:1px 5px;font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--acc4);font-weight:600}
+.day-range{background:rgba(168,85,247,.08);border:1px dashed rgba(168,85,247,.3);border-radius:4px;padding:1px 6px;font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--acc4)}
+.mes-card.empty-mes{border-left-color:var(--brd);opacity:.35}
 .mes-card.empty-mes .mes-val{color:var(--tx3)}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -177,47 +170,164 @@ tbody tr:hover td{background:var(--sur2)}
 <script>
 let DB=null,hist=[],cur=null,acItems=[],acIdx=-1;
 
+// ── FORMATEO ─────────────────────────────────────────────────────────────────
+
+// Detecta si el string es un ISO datetime de época 1899 (tiempo puro de Excel)
+function isExcelTime(s){return typeof s==='string'&&s.startsWith('1899-12-30T');}
+
+// Detecta si el string es un ISO datetime real (fecha)
+function isISODate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(s)&&!s.startsWith('1899');}
+
+// ISO → "HH:MM"
+function fmtTime(s){
+  const m=s.match(/T(\d{2}):(\d{2})/);
+  return m?m[1]+':'+m[2]:s;
+}
+
+// ISO → "DD/MM/YYYY"
+function fmtDate(s){
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m?m[3]+'/'+m[2]+'/'+m[1]:s;
+}
+
+// Formatea valor de facilidad: devuelve HTML con chips de días
+function fmtFacilidad(v){
+  if(!v)return'';
+  let s=String(v).trim();
+  // basura
+  if(!s||s==='.'||s==='}'||/^\s+$/.test(s))return'';
+  // ISO datetime → fecha
+  if(isISODate(s))return`<span class="day-chip">${fmtDate(s)}</span>`;
+  // Normalizar backslashes y comas extra
+  s=s.replace(/\\/g,'/').replace(/,\s*$/,'').trim();
+  // Intentar parsear: separar la parte de mes/año al final
+  // Patrones: DD[/,-]DD.../MM/YYYY  o  DD-DD/MM/YYYY
+  // El año suele ser los últimos 4 dígitos precedidos de /
+  const yrMatch=s.match(/\/(\d{4})$/);
+  if(!yrMatch)return`<span class="day-chip">${esc(s)}</span>`;
+  const yr=yrMatch[1];
+  const rest=s.slice(0,s.length-5);// quitar /YYYY
+  // Ahora rest = "DD[sep]DD.../MM" o "DD-DD/MM" etc
+  // Encontrar el mes: últimos /MM al final de rest
+  const mmMatch=rest.match(/\/(\d{2})$/);
+  if(!mmMatch)return`<span class="day-chip">${esc(s)}</span>`;
+  const mm=mmMatch[1];
+  const daysPart=rest.slice(0,rest.length-3);// quitar /MM
+  // daysPart puede ser: "03-24", "6,8", "05/06/23/24", "02-03-04", "4-18-20-27"
+  return parseDayPart(daysPart,mm,yr);
+}
+
+// Parsea la parte de días y devuelve chips HTML
+function parseDayPart(part,mm,yr){
+  if(!part)return`<span class="day-chip">${mm}/${yr}</span>`;
+  // Primero separar por / para ver si hay múltiples tokens
+  // Luego cada token puede ser un rango DD-DD o un día simple DD
+  const tokens=part.split('/').map(t=>t.trim()).filter(Boolean);
+  let chips='';
+  let i=0;
+  while(i<tokens.length){
+    const t=tokens[i];
+    // ¿Tiene guión? → puede ser rango(s) o lista con guión
+    if(t.includes('-')){
+      const parts=t.split('-').map(x=>x.trim()).filter(Boolean);
+      if(parts.length===2&&parseInt(parts[1])>parseInt(parts[0])){
+        // rango legítimo DD-DD
+        chips+=`<span class="day-range">${pad(parts[0])}–${pad(parts[1])}/${mm}/${yr}</span>`;
+      } else {
+        // varios días separados por guión
+        parts.forEach(d=>chips+=`<span class="day-chip">${pad(d)}/${mm}/${yr}</span>`);
+      }
+    } else if(t.includes(',')){
+      // DD,DD
+      t.split(',').forEach(d=>chips+=`<span class="day-chip">${pad(d.trim())}/${mm}/${yr}</span>`);
+    } else {
+      chips+=`<span class="day-chip">${pad(t)}/${mm}/${yr}</span>`;
+    }
+    i++;
+  }
+  return chips||`<span class="day-chip">${esc(part)}/${mm}/${yr}</span>`;
+}
+
+function pad(d){return String(parseInt(d,10)).padStart(2,'0');}
+
+// Formatea valor de celda genérico para tablas normales
+function fmtCell(key,val){
+  if(val===null||val===undefined||val==='')return'';
+  const s=String(val).trim();
+  if(!s)return'';
+  const kl=key.toLowerCase();
+  if(isExcelTime(s))return fmtTime(s);
+  if(isISODate(s))return fmtDate(s);
+  return s;
+}
+
+// Clase CSS para celda según key/valor
+function ccc(key,val){
+  const s=String(val||'').trim();
+  const kl=key.toLowerCase();
+  if(isExcelTime(s)||kl==='entrada'||kl==='salida')return'tc';
+  if(isISODate(s)||/^\d{2}\/\d{2}\/\d{4}$/.test(s)||kl.includes('fecha'))return'dc';
+  if(s&&!isNaN(s)&&/^\d+(\.\d+)?$/.test(s))return'nc';
+  return'';
+}
+
+// ── NOMBRES DE FUENTES ────────────────────────────────────────────────────────
+
+function srcLabel(n){
+  if(n.includes('2023')||n.includes('Control'))return'CTR 23-24';
+  if(n.includes('2025')||n.includes('LCGS'))return'LCGS 25';
+  return'FAC 26';
+}
+function srcClass(n){
+  if(n.includes('2023')||n.includes('Control'))return'src-c';
+  if(n.includes('2025')||n.includes('LCGS'))return'src-l';
+  return'src-f';
+}
+function srcColor(n){
+  if(n.includes('2023')||n.includes('Control'))return'var(--acc)';
+  if(n.includes('2025')||n.includes('LCGS'))return'var(--acc2)';
+  return'var(--acc4)';
+}
+function chipClass(n){
+  if(n.includes('2023')||n.includes('Control'))return'chip-c';
+  if(n.includes('2025')||n.includes('LCGS'))return'chip-l';
+  return'chip-f';
+}
+function tagClass(n){
+  if(n.includes('2023')||n.includes('Control'))return'tag-c';
+  if(n.includes('2025')||n.includes('LCGS'))return'tag-l';
+  return'tag-f';
+}
+
+// Nombre visible de la fuente para el header
+function srcDisplayName(n){
+  if(n.includes('Facilidad'))return'Facilidades Administrativas 2026';
+  if(n.includes('LCGS')||n.includes('2025'))return'Licencias con Goce de Sueldo';
+  if(n.includes('2023')||n.includes('Control')||n.includes('Licencia'))return'Licencias Médicas';
+  return n;
+}
+
+// ── DATOS ─────────────────────────────────────────────────────────────────────
+
 async function loadData(){
   try{
-
-    const r = await fetch('./data.json?t=' + Date.now());
-
-    if(!r.ok){
-      throw new Error('No se pudo cargar data.json');
-    }
-
-    DB = await r.json();
-
+    const r=await fetch('./data.json?t='+Date.now());
+    if(!r.ok)throw new Error('No se pudo cargar data.json');
+    DB=await r.json();
     let tr=0;
-
-    Object.values(DB).forEach(p=>
-      Object.values(p.fuentes).forEach(s=>
-        Object.values(s).forEach(r=>
-          tr+=r.length
-        )
-      )
-    );
-
-    document.getElementById('sp').textContent=
-      Object.keys(DB).length.toLocaleString('es-MX');
-
-    document.getElementById('sr').textContent=
-      tr.toLocaleString('es-MX');
-
+    Object.values(DB).forEach(p=>Object.values(p.fuentes).forEach(s=>Object.values(s).forEach(r=>tr+=r.length)));
+    document.getElementById('sp').textContent=Object.keys(DB).length.toLocaleString('es-MX');
+    document.getElementById('sr').textContent=tr.toLocaleString('es-MX');
     document.getElementById('ld').style.display='none';
-
     document.getElementById('em').style.display='flex';
-
     setupSearch();
-
   }catch(e){
-
-    document.getElementById('ld').innerHTML=
-      '<span style="color:#f87171;font-size:12px">Error: '+e.message+'</span>';
-
+    document.getElementById('ld').innerHTML='<span style="color:#f87171;font-size:12px">Error: '+e.message+'</span>';
     console.error(e);
   }
 }
+
+// ── BÚSQUEDA ──────────────────────────────────────────────────────────────────
 
 function setupSearch(){
   const inp=document.getElementById('si'),ac=document.getElementById('ac'),sc=document.getElementById('sc');
@@ -231,7 +341,7 @@ function setupSearch(){
     ac.innerHTML=res.map((p,i)=>`<div class="aci" data-rfc="${p.rfc}" data-i="${i}">
       <div class="aci-rfc">${hl(p.rfc,q)}</div>
       <div class="aci-nom">${hl(p.nombre||'(sin nombre)',q)}</div>
-      <div class="aci-tags">${Object.keys(p.fuentes).map(s=>`<span class="tag ${tc(s)}">${ts(s)}</span>`).join('')}</div>
+      <div class="aci-tags">${Object.keys(p.fuentes).map(s=>`<span class="tag ${tagClass(s)}">${srcLabel(s)}</span>`).join('')}</div>
     </div>`).join('');
     ac.querySelectorAll('.aci').forEach(el=>el.addEventListener('mousedown',e=>{
       e.preventDefault();pick(el.dataset.rfc);inp.value='';sc.style.display='none';
@@ -268,6 +378,8 @@ function hl(t,q){
   return t.slice(0,i)+'<mark style="background:rgba(0,217,163,.2);color:var(--acc);border-radius:2px">'+t.slice(i,i+q.length)+'</mark>'+t.slice(i+q.length);
 }
 
+// ── SELECCIÓN ─────────────────────────────────────────────────────────────────
+
 function pick(rfc){
   hideAC();
   const p=DB[rfc];if(!p)return;
@@ -278,10 +390,9 @@ function pick(rfc){
 }
 
 function renderSide(){
-  document.getElementById('sl').textContent=hist.length?'Recientes':'Recientes';
   document.getElementById('rl').innerHTML=hist.map(r=>{
     const p=DB[r];if(!p)return'';
-    const dots=Object.keys(p.fuentes).map(s=>`<div class="rdot" style="background:${sc2(s)}"></div>`).join('');
+    const dots=Object.keys(p.fuentes).map(s=>`<div class="rdot" style="background:${srcColor(s)}"></div>`).join('');
     return`<div class="ri ${r===cur?'act':''}" onclick="pick('${r}')">
       <span class="ri-rfc">${r}</span>
       <span class="ri-nom">${p.nombre||'—'}</span>
@@ -290,117 +401,112 @@ function renderSide(){
   }).join('');
 }
 
+// ── RENDER PERSONA ────────────────────────────────────────────────────────────
+
 function renderPerson(p){
   let totalR=0;
   Object.values(p.fuentes).forEach(s=>Object.values(s).forEach(r=>totalR+=r.length));
+
   let h=`<div class="ph">
     <div class="av">${getIni(p.nombre)}</div>
     <div class="pi">
       <div class="pi-rfc">RFC: ${p.rfc}</div>
       <div class="pi-nom">${p.nombre||'(Sin nombre registrado)'}</div>
-      <div class="pi-chips">${Object.keys(p.fuentes).map(s=>`<span class="chip ${cc2(s)}">${ts(s)}</span>`).join('')}</div>
+      <div class="pi-chips">${Object.keys(p.fuentes).map(s=>`<span class="chip ${chipClass(s)}">${srcDisplayName(s)}</span>`).join('')}</div>
     </div>
     <div class="tot"><div class="tot-n">${totalR}</div><div class="tot-l">registros totales</div></div>
   </div>`;
 
   for(const[sname,sheets]of Object.entries(p.fuentes)){
     const st=Object.values(sheets).reduce((a,r)=>a+r.length,0);
-    const cls=sc3(sname);
+    const cls=srcClass(sname);
+    const displayName=srcDisplayName(sname);
 
     h+=`<div class="fsec"><div class="fhdr ${cls}" onclick="toggleF(this)">
-      <div class="fdot"></div><div class="fnam">${sname}</div>
+      <div class="fdot"></div><div class="fnam">${displayName}</div>
       <div class="fcnt">${st} registro${st!==1?'s':''}</div><span class="chev">▾</span>
     </div><div class="fbody">`;
 
     for(const[shName,recs]of Object.entries(sheets)){
-
       if(!recs.length)continue;
-
       const isFac=sname.includes('Facilidad');
 
       h+=`<div class="ssec"><div class="sttl">${shName}<span class="sbdg">${recs.length} reg.</span></div>`;
 
       if(isFac){
-
+        // ── FACILIDADES CARD ──
         const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
 
         recs.forEach((rec,ri)=>{
-
           if(recs.length>1)
             h+=`<div style="padding:4px 10px;font-size:9px;color:var(--tx3);font-family:'IBM Plex Mono',monospace;background:var(--sur);border:1px solid var(--brd);border-bottom:none">REGISTRO ${ri+1}</div>`;
 
           const infoKeys=['TARJETA','TURNO','ENTRADA','SALIDA','SERVICIO'];
-
-          const infoFields=infoKeys.filter(k=>rec[k]);
+          const infoFields=infoKeys.filter(k=>rec[k]!==undefined&&rec[k]!==null&&rec[k]!=='');
 
           if(infoFields.length){
-
             h+=`<div class="fac-info">`;
-
             infoFields.forEach(k=>{
-              h+=`<div class="fac-field"><span class="fac-key">${k}</span><span class="fac-val">${esc(rec[k])}</span></div>`;
+              let v=rec[k];
+              let display='';
+              let extraClass='';
+              const vs=String(v||'').trim();
+              if(k==='ENTRADA'||k==='SALIDA'){
+                display=isExcelTime(vs)?fmtTime(vs):vs;
+                extraClass=' time';
+              } else {
+                display=isISODate(vs)?fmtDate(vs):vs;
+              }
+              h+=`<div class="fac-field"><span class="fac-key">${k}</span><span class="fac-val${extraClass}">${esc(display)}</span></div>`;
             });
-
             h+=`</div>`;
           }
 
           h+=`<div class="fac-grid">`;
-
           MESES.forEach(mes=>{
-
             const key=`FACILIDADES ADMINISTRATIVAS ${mes} 2026`;
-
-            const val=rec[key]||'';
-
-            h+=`<div class="mes-card ${val?'':'empty-mes'}">
+            const val=rec[key];
+            const vs=String(val||'').trim();
+            const isEmpty=!vs||vs==='.'||vs==='}'||/^\s+$/.test(vs);
+            const chips=isEmpty?'':fmtFacilidad(vs);
+            h+=`<div class="mes-card ${isEmpty?'empty-mes':''}">
               <div class="mes-nom">${mes}</div>
-              <div class="mes-val">${val||'—'}</div>
+              ${isEmpty
+                ?'<div class="mes-val">—</div>'
+                :`<div class="day-chips">${chips}</div>`}
             </div>`;
           });
-
           h+=`</div>`;
         });
 
       } else {
-
+        // ── TABLA GENÉRICA ──
         const keys=[];
-
-        recs.forEach(r=>
-          Object.keys(r).forEach(k=>{
-            if(!keys.includes(k))keys.push(k);
-          })
-        );
-
+        recs.forEach(r=>Object.keys(r).forEach(k=>{if(!keys.includes(k))keys.push(k);}));
         const skip=['RFC','R.F.C.','COMPARACION','COMPARAR','COD_RHNET'];
-
         const dk=keys.filter(k=>!skip.includes(k));
 
         h+=`<div class="tw"><table><thead><tr><th>#</th>${dk.map(k=>`<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>`;
-
         recs.forEach((rec,ri)=>{
           h+=`<tr><td class="rn">${ri+1}</td>${dk.map(k=>{
-            const v=rec[k]||'';
-            return`<td class="${ccc(k,v)}" title="${esc(v)}">${esc(v)}</td>`;
+            const raw=rec[k];
+            const v=fmtCell(k,raw);
+            const cls=ccc(k,String(raw||''));
+            return`<td class="${cls}" title="${esc(v)}">${esc(v)}</td>`;
           }).join('')}</tr>`;
         });
-
         h+=`</tbody></table></div>`;
       }
 
       h+=`</div>`;
     }
-
     h+=`</div></div>`;
   }
 
   const rp=document.getElementById('rp');
-
   rp.innerHTML=h;
-
   rp.classList.add('on');
-
   rp.scrollTop=0;
-
   document.getElementById('em').style.display='none';
 }
 
@@ -409,69 +515,17 @@ function toggleF(hdr){
   hdr.nextElementSibling.classList.toggle('hid');
 }
 
-function sc2(n){
-  return n.includes('2023')||n.includes('Control')
-    ?'var(--acc)'
-    :n.includes('2025')||n.includes('LCGS')
-    ?'var(--acc2)'
-    :'var(--acc4)';
-}
-
-function sc3(n){
-  return n.includes('2023')||n.includes('Control')
-    ?'src-c'
-    :n.includes('2025')||n.includes('LCGS')
-    ?'src-l'
-    :'src-f';
-}
-
-function cc2(n){
-  return n.includes('2023')||n.includes('Control')
-    ?'chip-c'
-    :n.includes('2025')||n.includes('LCGS')
-    ?'chip-l'
-    :'chip-f';
-}
-
-function tc(n){
-  return n.includes('2023')||n.includes('Control')
-    ?'tag-c'
-    :n.includes('2025')||n.includes('LCGS')
-    ?'tag-l'
-    :'tag-f';
-}
-
-function ts(n){
-  return n.includes('2023')
-    ?'CTR 23-24'
-    :n.includes('2025')||n.includes('LCGS')
-    ?'LCGS 25'
-    :'FAC 26';
-}
-
 function getIni(n){
   if(!n)return'?';
   const p=n.replace(/,/g,' ').replace(/\//g,' ').split(/\s+/).filter(Boolean);
-  return p.length>=2
-    ?(p[0][0]+p[1][0]).toUpperCase()
-    :n[0].toUpperCase();
-}
-
-function ccc(k,v){
-  if(/^\d{4}-\d{2}-\d{2}$/.test(v)||k.toLowerCase().includes('fecha'))return'dc';
-  if(v&&!isNaN(v)&&/^\d+(\.\d+)?$/.test(v))return'nc';
-  return'';
+  return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():n[0].toUpperCase();
 }
 
 function esc(s){
-  return String(s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 loadData();
 </script>
 </body>
-</html> 
+</html>
