@@ -173,7 +173,9 @@ let DB=null,hist=[],cur=null,acItems=[],acIdx=-1;
 // ── FORMATEO ─────────────────────────────────────────────────────────────────
 
 // Detecta si el string es un ISO datetime de época 1899 (tiempo puro de Excel)
-function isExcelTime(s){return typeof s==='string'&&s.startsWith('1899-12-30T');}
+function isExcelTime(s){
+  return typeof s==='string'&&(s.startsWith('1899-12-30T')||s.startsWith('1899-12-31T'));
+}
 
 // Detecta si el string es un ISO datetime real (fecha)
 function isISODate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(s)&&!s.startsWith('1899');}
@@ -199,9 +201,18 @@ function fmtTime(s) {
 }
 
 // ISO → "DD/MM/YYYY"
-function fmtDate(s){
-  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  return m?m[3]+'/'+m[2]+'/'+m[1]:s;
+function fmtTime(s) {
+  if (!isExcelTime(s)) {
+    return s;
+  }
+  
+  // Extrae HH:MM directo del string SIN parsearlo con new Date()
+  const match = s.match(/T(\d{2}):(\d{2}):/);
+  if (match) {
+    return `${match[1]}:${match[2]}`;
+  }
+  
+  return s;
 }
 
 // Formatea valor de facilidad: devuelve HTML con chips de días
