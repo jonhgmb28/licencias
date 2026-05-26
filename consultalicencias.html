@@ -165,7 +165,8 @@ tbody tr:hover td{background:var(--sur2)}
     <div class="rp" id="rp"></div>
   </div>
 </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <script>
 let DB=null,hist=[],cur=null,acItems=[],acIdx=-1;
 
@@ -368,7 +369,23 @@ function renderPerson(p){
       <div class="pi-nom">${p.nombre||'(Sin nombre registrado)'}</div>
       <div class="pi-chips">${Object.keys(p.fuentes).map(s=>`<span class="chip ${chipClass(s)}">${srcDisplayName(s)}</span>`).join('')}</div>
     </div>
-    <div class="tot"><div class="tot-n">${totalR}</div><div class="tot-l">registros totales</div></div>
+    <div class="tot">
+  <div class="tot-n">${totalR}</div>
+  <div class="tot-l">registros totales</div>
+  <button onclick="genPDF()" style="
+    margin-top:10px;
+    background:var(--acc);
+    border:none;
+    color:#000;
+    padding:7px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:11px;
+  ">
+    Descargar PDF
+  </button>
+</div>
   </div>`;
 
   for(const[sname,sheets]of Object.entries(p.fuentes)){
@@ -482,6 +499,281 @@ function esc(s){
 }
 
 loadData();
+
+  async function genPDF(){
+
+  if(!cur || !DB[cur]) return;
+
+  const p = DB[cur];
+
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF();
+
+  // =====================================================
+  // DATOS
+  // =====================================================
+
+  let totalLic = 0;
+  let totalLCGS = 0;
+  let totalFac = 0;
+
+  const licencias = [];
+  const lcgs = [];
+  const facilidades = [];
+
+  Object.entries(p.fuentes).forEach(([src, sheets]) => {
+
+    Object.entries(sheets).forEach(([sheet, recs]) => {
+
+      recs.forEach(r => {
+
+        if(src.includes('Control')){
+
+          totalLic++;
+
+          licencias.push([
+            r['TIPO'] || r['Tipo'] || '—',
+            r['FECHA'] || r['Fecha'] || '—',
+            r['DIAS'] || r['DÍAS'] || '—'
+          ]);
+        }
+
+        else if(src.includes('LCGS')){
+
+          totalLCGS++;
+
+          lcgs.push([
+            r['Consecutivo'] || '—',
+            r['No. Días'] || '—',
+            r['Fecha de Inicio'] || '—',
+            r['Fecha de Termino'] || '—',
+            r['Turno'] || '—'
+          ]);
+        }
+
+        else if(src.includes('Facilidad')){
+
+          totalFac++;
+
+          facilidades.push([
+            r['SERVICIO'] || '—',
+            r['TURNO'] || '—',
+            r['ENTRADA'] || '—',
+            r['SALIDA'] || '—'
+          ]);
+        }
+
+      });
+
+    });
+
+  });
+
+  // =====================================================
+  // HEADER
+  // =====================================================
+
+  doc.setFillColor(13,17,23);
+  doc.rect(0,0,210,30,'F');
+
+  doc.setTextColor(255,255,255);
+
+  doc.setFontSize(20);
+  doc.text('Reporte Integral de Licencias',14,15);
+
+  doc.setFontSize(10);
+  doc.text('Hospital de la Mujer',14,22);
+
+  // =====================================================
+  // PERSONA
+  // =====================================================
+
+  doc.setTextColor(0,0,0);
+
+  let y = 40;
+
+  doc.setFontSize(16);
+  doc.text(p.nombre || 'SIN NOMBRE',14,y);
+
+  y += 8;
+
+  doc.setFontSize(11);
+  doc.text(`RFC: ${p.rfc}`,14,y);
+
+  y += 14;
+
+  // =====================================================
+  // RESUMEN
+  // =====================================================
+
+  doc.setFillColor(240,240,240);
+
+  doc.roundedRect(14,y,180,28,3,3,'F');
+
+  doc.setFontSize(12);
+
+  doc.text(`Licencias Médicas: ${totalLic}`,20,y+10);
+
+  doc.text(`LCGS: ${totalLCGS}`,20,y+18);
+
+  doc.text(`Facilidades: ${totalFac}`,100,y+10);
+
+  doc.text(`Total Registros: ${totalLic+totalLCGS+totalFac}`,100,y+18);
+
+  y += 40;
+
+  // =====================================================
+  // LICENCIAS
+  // =====================================================
+
+  if(licencias.length){
+
+    doc.setFontSize(14);
+
+    doc.text('Licencias Médicas',14,y);
+
+    y += 4;
+
+    doc.autoTable({
+
+      startY:y,
+
+      head:[[
+        'Tipo',
+        'Fecha',
+        'Días'
+      ]],
+
+      body:licencias,
+
+      styles:{
+        fontSize:9
+      },
+
+      headStyles:{
+        fillColor:[0,217,163]
+      }
+
+    });
+
+    y = doc.lastAutoTable.finalY + 12;
+  }
+
+  // =====================================================
+  // LCGS
+  // =====================================================
+
+  if(lcgs.length){
+
+    doc.setFontSize(14);
+
+    doc.text('Licencias con Goce de Sueldo',14,y);
+
+    y += 4;
+
+    doc.autoTable({
+
+      startY:y,
+
+      head:[[
+        'Consecutivo',
+        'Días',
+        'Inicio',
+        'Término',
+        'Turno'
+      ]],
+
+      body:lcgs,
+
+      styles:{
+        fontSize:8
+      },
+
+      headStyles:{
+        fillColor:[14,165,233]
+      }
+
+    });
+
+    y = doc.lastAutoTable.finalY + 12;
+  }
+
+  // =====================================================
+  // FACILIDADES
+  // =====================================================
+
+  if(facilidades.length){
+
+    doc.setFontSize(14);
+
+    doc.text('Facilidades Administrativas',14,y);
+
+    y += 4;
+
+    doc.autoTable({
+
+      startY:y,
+
+      head:[[
+        'Servicio',
+        'Turno',
+        'Entrada',
+        'Salida'
+      ]],
+
+      body:facilidades,
+
+      styles:{
+        fontSize:8
+      },
+
+      headStyles:{
+        fillColor:[168,85,247]
+      }
+
+    });
+
+  }
+
+  // =====================================================
+  // FOOTER
+  // =====================================================
+
+  const pageCount = doc.internal.getNumberOfPages();
+
+  for(let i=1;i<=pageCount;i++){
+
+    doc.setPage(i);
+
+    doc.setFontSize(9);
+
+    doc.setTextColor(120);
+
+    doc.text(
+      `Generado: ${new Date().toLocaleString('es-MX')}`,
+      14,
+      290
+    );
+
+    doc.text(
+      `Página ${i} de ${pageCount}`,
+      170,
+      290
+    );
+  }
+
+  // =====================================================
+  // DESCARGAR
+  // =====================================================
+
+  const safeName =
+    (p.nombre || p.rfc)
+      .replace(/[^\w\s]/gi,'')
+      .replace(/\s+/g,'_');
+
+  doc.save(`REPORTE_${safeName}.pdf`);
+}
 </script>
 </body>
 </html>
