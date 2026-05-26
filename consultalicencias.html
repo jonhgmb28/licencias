@@ -538,24 +538,35 @@ loadData();
 
         if(src.includes('Control')){
 
-          totalLic++;
+  totalLic++;
 
-          const fecha =
-            (r['D_2'] || '--') + '/' +
-            (r['M_2'] || '--') + '/' +
-            (r['A'] || '--');
+  // FECHA INICIO
+  const inicio =
+    (r['D'] || '--') + '/' +
+    (r['M'] || '--') + '/' +
+    (r['A'] || '--');
 
-          licencias.push([
+  // FECHA TERMINO
+  const termino =
+    (r['D_2'] || '--') + '/' +
+    (r['M_2'] || '--') + '/' +
+    (r['A'] || '--');
 
-            r['DIAGNOSTICO'] || '—',
+  licencias.push([
 
-            fecha,
+    r['DIAGNOSTICO'] ||
+    r['DIAGNOSTICO_2'] ||
+    '—',
 
-            r['# DIAS'] ||
-            r['DIAS'] ||
-            '—'
-          ]);
-        }
+    inicio,
+
+    termino,
+
+    r['# DIAS'] ||
+    r['DIAS'] ||
+    '—'
+  ]);
+}
 
         // =================================================
         // LCGS
@@ -684,10 +695,11 @@ loadData();
       startY:y,
 
       head:[[
-        'Diagnóstico',
-        'Fecha',
-        'Días'
-      ]],
+  'Diagnóstico',
+  'Inicio',
+  'Término',
+  'Días'
+]],
 
       body:licencias,
 
