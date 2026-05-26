@@ -179,9 +179,20 @@ function isExcelTime(s){return typeof s==='string'&&s.startsWith('1899-12-30T');
 function isISODate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(s)&&!s.startsWith('1899');}
 
 // ISO → "HH:MM"
-function fmtTime(s){
-  const m=s.match(/T(\d{2}):(\d{2})/);
-  return m?m[1]+':'+m[2]:s;
+
+function fmtTime(s) {
+    if (!s) return '';
+    
+    // Si viene en formato ISO (1899-12-30T14:30:00.000Z)
+    if (s.includes('T')) {
+        const dateObj = new Date(s);
+        // Ajuste: getUTCHours y getUTCMinutes para ignorar la fecha base de 1899
+        const hh = String(dateObj.getUTCHours()).padStart(2, '0');
+        const mm = String(dateObj.getUTCMinutes()).padStart(2, '0');
+        return `${hh}:${mm}`;
+    }
+    
+    return s; // Si no es formato fecha, devuelve el texto tal cual
 }
 
 // ISO → "DD/MM/YYYY"
