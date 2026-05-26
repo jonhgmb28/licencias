@@ -430,10 +430,20 @@ function renderPerson(p){
         });
       } else {
         // TABLA GENÉRICA: mostrar todas las columnas (excepto "EMPTY")
-        const allKeys=[];
-        recs.forEach(r=>Object.keys(r).forEach(k=>{if(!allKeys.includes(k))allKeys.push(k);}));
-        // No filtramos por nombre de columna, excepto las que se llaman "EMPTY" (sin encabezado)
-        const dk = allKeys.filter(k => !k.startsWith('EMPTY'));
+        // TABLA GENÉRICA: mostrar TODAS las columnas del Excel
+const allKeys = [];
+
+recs.forEach(r => {
+  Object.keys(r).forEach(k => {
+    if (!allKeys.includes(k)) {
+      allKeys.push(k);
+    }
+  });
+});
+
+// NO eliminar columnas EMPTY porque
+// el Excel usa esas columnas para datos reales
+const dk = allKeys;
         
         h+=`<div class="tw"><table><thead><tr><th>#</th>${dk.map(k=>`<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>`;
         recs.forEach((rec,ri)=>{
