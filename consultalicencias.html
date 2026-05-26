@@ -1,13 +1,12 @@
-<!DOCTYPE html>
+<!DOCTYPE ht<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control de Licencias — Hospital de la Mujer</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <style>
-/* ===== LOS MISMOS ESTILOS QUE ANTES (no cambian) ===== */
+/* ===== ESTILOS ORIGINALES (se mantienen) ===== */
 :root{--bg:#0d1117;--sur:#161b22;--sur2:#1c2230;--brd:#30363d;--acc:#00d9a3;--acc2:#0ea5e9;--acc3:#f59e0b;--acc4:#a855f7;--warn:#f59e0b;--tx:#e6edf3;--tx2:#8b949e;--tx3:#3d444d}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
@@ -170,7 +169,7 @@ tbody tr:hover td{background:var(--sur2)}
 <script>
 let DB=null,hist=[],cur=null,acItems=[],acIdx=-1;
 
-// ── FORMATEO (igual que antes) ──────────────────────────────────────────────
+// ── FORMATEO ─────────────────────────────────────────────────────────────────
 function isExcelTime(s){return typeof s==='string'&&s.startsWith('1899-12-30T');}
 function isISODate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(s)&&!s.startsWith('1899');}
 function fmtTime(s) {
@@ -241,6 +240,7 @@ function ccc(key,val){
   if(s&&!isNaN(s)&&/^\d+(\.\d+)?$/.test(s))return'nc';
   return'';
 }
+// ── NOMBRES DE FUENTES ────────────────────────────────────────────────────────
 function srcLabel(n){
   if(n.includes('2023')||n.includes('Control'))return'CTR 23-24';
   if(n.includes('2025')||n.includes('LCGS'))return'LCGS 25';
@@ -272,7 +272,7 @@ function srcDisplayName(n){
   if(n.includes('2023')||n.includes('Control')||n.includes('Licencia'))return'Licencias Médicas';
   return n;
 }
-// ── CARGA DE DATOS ──────────────────────────────────────────────────────────
+// ── DATOS ─────────────────────────────────────────────────────────────────────
 async function loadData(){
   try{
     const r=await fetch('./data.json?t='+Date.now());
@@ -290,7 +290,7 @@ async function loadData(){
     console.error(e);
   }
 }
-// ── BÚSQUEDA ────────────────────────────────────────────────────────────────
+// ── BÚSQUEDA ──────────────────────────────────────────────────────────────────
 function setupSearch(){
   const inp=document.getElementById('si'),ac=document.getElementById('ac'),sc=document.getElementById('sc');
   inp.addEventListener('input',()=>{
@@ -336,6 +336,7 @@ function hl(t,q){
   const i=t.toUpperCase().indexOf(q);if(i<0)return t;
   return t.slice(0,i)+'<mark style="background:rgba(0,217,163,.2);color:var(--acc);border-radius:2px">'+t.slice(i,i+q.length)+'</mark>'+t.slice(i+q.length);
 }
+// ── SELECCIÓN ─────────────────────────────────────────────────────────────────
 function pick(rfc){
   hideAC();
   const p=DB[rfc];if(!p)return;
@@ -355,7 +356,7 @@ function renderSide(){
     </div>`;
   }).join('');
 }
-// ── RENDER PERSONA (con detección de falta de datos en facilidades) ─────────
+// ── RENDER PERSONA (MUESTRA TODAS LAS COLUMNAS SIN FILTRAR, EXCEPTO EMPTY) ───
 function renderPerson(p){
   let totalR=0;
   Object.values(p.fuentes).forEach(s=>Object.values(s).forEach(r=>totalR+=r.length));
@@ -380,11 +381,6 @@ function renderPerson(p){
       <div class="fcnt">${st} registro${st!==1?'s':''}</div><span class="chev">▾</span>
     </div><div class="fbody">`;
 
-    // Si la fuente es "Facilidades 2026" pero no tiene hojas o registros, mostrar aviso
-    if(sname === "Facilidades 2026" && st === 0){
-      h+=`<div style="padding:10px;color:var(--warn);font-size:11px;text-align:center">⚠️ No hay registros de facilidades para esta persona.</div>`;
-    }
-
     for(const[shName,recs]of Object.entries(sheets)){
       if(!recs.length)continue;
       const isFac=sname.includes('Facilidad');
@@ -392,7 +388,7 @@ function renderPerson(p){
       h+=`<div class="ssec"><div class="sttl">${shName}<span class="sbdg">${recs.length} reg.</span></div>`;
 
       if(isFac){
-        // FACILIDADES CARD
+        // FACILIDADES (sin cambios)
         const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
         recs.forEach((rec,ri)=>{
           if(recs.length>1)
@@ -433,18 +429,20 @@ function renderPerson(p){
           h+=`</div>`;
         });
       } else {
-        // TABLA GENÉRICA (mostrar todas las columnas excepto EMPTY)
+        // TABLA GENÉRICA: mostrar todas las columnas (excepto "EMPTY")
         const allKeys=[];
         recs.forEach(r=>Object.keys(r).forEach(k=>{if(!allKeys.includes(k))allKeys.push(k);}));
+        // No filtramos por nombre de columna, excepto las que se llaman "EMPTY" (sin encabezado)
         const dk = allKeys.filter(k => !k.startsWith('EMPTY'));
-        h+=`<div class="tw"><tr><thead><tr><th>#</th>${dk.map(k=>`<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>`;
+        
+        h+=`<div class="tw"><table><thead><tr><th>#</th>${dk.map(k=>`<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>`;
         recs.forEach((rec,ri)=>{
-          h+=`<tr class="rn">${ri+1}</td>${dk.map(k=>{
+          h+=`<tr><td class="rn">${ri+1}</td>${dk.map(k=>{
             const raw=rec[k];
             const v=fmtCell(k,raw);
             const cls=ccc(k,String(raw||''));
             return`<td class="${cls}" title="${esc(v)}">${esc(v)}</td>`;
-          }).join('')}<tr>`;
+          }).join('')}</tr>`;
         });
         h+=`</tbody></table></div>`;
       }
