@@ -511,7 +511,7 @@ loadData();
   const doc = new jsPDF();
 
   // =====================================================
-  // DATOS
+  // VARIABLES
   // =====================================================
 
   let totalLic = 0;
@@ -522,45 +522,89 @@ loadData();
   const lcgs = [];
   const facilidades = [];
 
+  // =====================================================
+  // RECORRER DATOS
+  // =====================================================
+
   Object.entries(p.fuentes).forEach(([src, sheets]) => {
 
     Object.entries(sheets).forEach(([sheet, recs]) => {
 
       recs.forEach(r => {
 
+        // =================================================
+        // LICENCIAS MÉDICAS
+        // =================================================
+
         if(src.includes('Control')){
 
           totalLic++;
 
+          const fecha =
+            (r['D_2'] || '--') + '/' +
+            (r['M_2'] || '--') + '/' +
+            (r['A'] || '--');
+
           licencias.push([
-            r['TIPO'] || r['Tipo'] || '—',
-            r['FECHA'] || r['Fecha'] || '—',
-            r['DIAS'] || r['DÍAS'] || '—'
+
+            r['DIAGNOSTICO'] || '—',
+
+            fecha,
+
+            r['# DIAS'] ||
+            r['DIAS'] ||
+            '—'
           ]);
         }
+
+        // =================================================
+        // LCGS
+        // =================================================
 
         else if(src.includes('LCGS')){
 
           totalLCGS++;
 
           lcgs.push([
-            r['Consecutivo'] || '—',
-            r['No. Días'] || '—',
-            r['Fecha de Inicio'] || '—',
-            r['Fecha de Termino'] || '—',
-            r['Turno'] || '—'
+
+            r['CONSECUTIVO'] ||
+            r['Consecutivo'] ||
+            '—',
+
+            r['NO. DÍAS'] ||
+            r['No. Días'] ||
+            '—',
+
+            r['FECHA DE INICIO'] ||
+            r['Fecha de Inicio'] ||
+            '—',
+
+            r['FECHA DE TERMINO'] ||
+            r['Fecha de Termino'] ||
+            '—',
+
+            r['TURNO'] ||
+            '—'
           ]);
         }
+
+        // =================================================
+        // FACILIDADES
+        // =================================================
 
         else if(src.includes('Facilidad')){
 
           totalFac++;
 
           facilidades.push([
+
             r['SERVICIO'] || '—',
+
             r['TURNO'] || '—',
-            r['ENTRADA'] || '—',
-            r['SALIDA'] || '—'
+
+            fmtTime(r['ENTRADA'] || '—'),
+
+            fmtTime(r['SALIDA'] || '—')
           ]);
         }
 
@@ -640,7 +684,7 @@ loadData();
       startY:y,
 
       head:[[
-        'Tipo',
+        'Diagnóstico',
         'Fecha',
         'Días'
       ]],
@@ -648,7 +692,7 @@ loadData();
       body:licencias,
 
       styles:{
-        fontSize:9
+        fontSize:8
       },
 
       headStyles:{
