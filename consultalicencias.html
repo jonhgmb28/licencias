@@ -602,6 +602,50 @@ loadData();
       /\d/.test(String(termino || ''));
   }
 
+  function expandDiasFacilidad(valor){
+    const v = cleanFacilityValue(valor);
+    if(!v) return [];
+
+    // Si viene como fecha ISO de Excel/JSON, cuenta como una facilidad.
+    if(/^\d{2}\/\d{2}\/\d{4}$/.test(v)) return [v];
+
+    // Formatos esperados:
+    // 12/15/05/2026  => dos facilidades: 12/05/2026 y 15/05/2026
+    // 12-15/05/2026  => una facilidad: 12-15/05/2026
+    // 12,15/05/2026  => dos facilidades: 12/05/2026 y 15/05/2026
+    const match = v.match(/^(.+)\/(\d{1,2})\/(\d{4})$/);
+    if(!match) return [v];
+
+    const diasPart = match[1].trim();
+    const mm = String(parseInt(match[2],10)).padStart(2,'0');
+    const yr = match[3];
+    const eventos = [];
+
+    diasPart.split('/').forEach(token => {
+      token = token.trim();
+      if(!token) return;
+
+      if(token.includes('-')){
+        // Un rango cuenta como una sola facilidad.
+        const partes = token.split('-').map(x => x.trim()).filter(Boolean);
+        if(partes.length === 2){
+          eventos.push(`${pad(partes[0])}-${pad(partes[1])}/${mm}/${yr}`);
+        } else {
+          eventos.push(`${token}/${mm}/${yr}`);
+        }
+      } else if(token.includes(',')){
+        // Días separados por coma cuentan como facilidades independientes.
+        token.split(',').map(x => x.trim()).filter(Boolean).forEach(d => {
+          eventos.push(`${pad(d)}/${mm}/${yr}`);
+        });
+      } else {
+        eventos.push(`${pad(token)}/${mm}/${yr}`);
+      }
+    });
+
+    return eventos.length ? eventos : [v];
+  }
+
   function diasFacilidad(row){
     const meses = [
       'ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO',
@@ -618,11 +662,10 @@ loadData();
 
       if(!key) return;
 
-      const v = cleanFacilityValue(row[key]);
-      if(v) dias.push(`${mes}: ${v}`);
+      expandDiasFacilidad(row[key]).forEach(d => dias.push(`${mes}: ${d}`));
     });
 
-    return dias.length ? dias.join(' | ') : '—';
+    return dias;
   }
 
   function isLicMed(src){
@@ -734,30 +777,42 @@ loadData();
 
         else if(isFac(src)){
 
-          const rowFacilidad = [
+          const servicio = firstVal(r, [
+            ['SERVICIO','ÁREA','AREA']
+          ]);
 
-            firstVal(r, [
-              ['SERVICIO','ÁREA','AREA']
-            ]),
+          const turno = firstVal(r, [
+            ['TURNO','TURNO ','JORNADA'],
+            'TURNO'
+          ]);
 
-            firstVal(r, [
-              ['TURNO','TURNO ','JORNADA'],
-              'TURNO'
-            ]),
+          const entrada = outTime(firstVal(r, [
+            ['ENTRADA','HORA ENTRADA']
+          ]));
 
-            outTime(firstVal(r, [
-              ['ENTRADA','HORA ENTRADA']
-            ])),
+          const salida = outTime(firstVal(r, [
+            ['SALIDA','HORA SALIDA']
+          ]));
 
-            outTime(firstVal(r, [
-              ['SALIDA','HORA SALIDA']
-            ])),
+          const eventosFacilidad = diasFacilidad(r);
 
-            diasFacilidad(r)
-          ];
-
-          if(hasRealData(rowFacilidad)){
-            facilidades.push(rowFacilidad);
+          // Cada día separado cuenta como una facilidad independiente.
+          // Ejemplo: 12/15/05/2026 = 2 facilidades.
+          // Un rango cuenta como una sola facilidad.
+          // Ejemplo: 12-15/05/2026 = 1 facilidad.
+          if(eventosFacilidad.length){
+            eventosFacilidad.forEach(dia => {
+              facilidades.push([
+                servicio,
+                turno,
+                entrada,
+                salida,
+                dia
+              ]);
+            });
+          } else {
+            const rowFacilidad = [servicio, turno, entrada, salida, '—'];
+            if(hasRealData(rowFacilidad)) facilidades.push(rowFacilidad);
           }
         }
 
