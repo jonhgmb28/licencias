@@ -505,10 +505,127 @@ loadData();
   if(!cur || !DB[cur]) return;
 
   const p = DB[cur];
-
   const { jsPDF } = window.jspdf;
-
   const doc = new jsPDF();
+
+  // =====================================================
+  // HELPERS PARA LEER COLUMNAS CON NOMBRES VARIABLES
+  // =====================================================
+
+  function normKey(k){
+    return String(k || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'')
+      .toUpperCase()
+      .replace(/\s+/g,' ')
+      .trim();
+  }
+
+  function valByNames(row, names){
+    const wanted = names.map(normKey);
+    for(const [k,v] of Object.entries(row)){
+      if(v === null || v === undefined || String(v).trim() === '') continue;
+      if(wanted.includes(normKey(k))) return v;
+    }
+    return '';
+  }
+
+  function valByContains(row, words){
+    const wanted = words.map(normKey);
+    for(const [k,v] of Object.entries(row)){
+      if(v === null || v === undefined || String(v).trim() === '') continue;
+      const nk = normKey(k);
+      if(wanted.every(w => nk.includes(w))) return v;
+    }
+    return '';
+  }
+
+  function firstVal(row, options){
+    for(const op of options){
+      const v = Array.isArray(op)
+        ? valByNames(row, op)
+        : valByContains(row, [op]);
+
+      if(v !== null && v !== undefined && String(v).trim() !== '') return v;
+    }
+    return '—';
+  }
+
+  function outDate(v){
+    if(v === null || v === undefined || String(v).trim() === '') return '—';
+    const s = String(v).trim();
+    return isISODate(s) ? fmtDate(s) : s;
+  }
+
+  function outTime(v){
+    if(v === null || v === undefined || String(v).trim() === '') return '—';
+    const s = String(v).trim();
+    return isExcelTime(s) ? fmtTime(s) : s;
+  }
+
+  function fechaLicencia(row, suf=''){
+    const d = valByNames(row, [`D${suf}`]);
+    const m = valByNames(row, [`M${suf}`]);
+    const a = valByNames(row, [`A${suf}`]) || valByNames(row, ['A']);
+
+    if(d || m || a){
+      return `${d || '--'}/${m || '--'}/${a || '--'}`;
+    }
+
+    return outDate(firstVal(row, [
+      [`FECHA${suf}`],
+      [`FECHA DE INICIO${suf}`],
+      [`INICIO${suf}`]
+    ]));
+  }
+
+  function cleanFacilityValue(v){
+    if(v === null || v === undefined) return '';
+    let s = String(v).trim();
+    if(!s || s === '.' || s === '}') return '';
+    if(isISODate(s)) return fmtDate(s);
+    return s.replace(/\\/g,'/').replace(/,\s*$/,'').trim();
+  }
+
+  function diasFacilidad(row){
+    const meses = [
+      'ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO',
+      'JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'
+    ];
+
+    const dias = [];
+
+    meses.forEach(mes => {
+      const key = Object.keys(row).find(k => {
+        const nk = normKey(k);
+        return nk.includes('FACILIDADES ADMINISTRATIVAS') && nk.includes(mes) && nk.includes('2026');
+      });
+
+      if(!key) return;
+
+      const v = cleanFacilityValue(row[key]);
+      if(v) dias.push(`${mes}: ${v}`);
+    });
+
+    return dias.length ? dias.join(' | ') : '—';
+  }
+
+  function isLicMed(src){
+    const ns = normKey(src);
+    return (ns.includes('CONTROL') || ns.includes('LICENCIA')) &&
+           !ns.includes('LCGS') &&
+           !ns.includes('GOCE') &&
+           !ns.includes('FACILIDAD');
+  }
+
+  function isLCGS(src){
+    const ns = normKey(src);
+    return ns.includes('LCGS') || ns.includes('GOCE');
+  }
+
+  function isFac(src){
+    return normKey(src).includes('FACILIDAD');
+  }
 
   // =====================================================
   // VARIABLES
@@ -536,86 +653,92 @@ loadData();
         // LICENCIAS MÉDICAS
         // =================================================
 
-        if(src.includes('Control')){
+        if(isLicMed(src)){
 
-  totalLic++;
+          totalLic++;
 
-  // FECHA INICIO
-  const inicio =
-    (r['D'] || '--') + '/' +
-    (r['M'] || '--') + '/' +
-    (r['A'] || '--');
+          const diagnostico = firstVal(r, [
+            ['DIAGNOSTICO','DIAGNÓSTICO','DIAGNOSTICO_2','DIAGNÓSTICO_2'],
+            'DIAGNOSTICO'
+          ]);
 
-  // FECHA TERMINO
-  const termino =
-    (r['D_2'] || '--') + '/' +
-    (r['M_2'] || '--') + '/' +
-    (r['A'] || '--');
+          const dias = firstVal(r, [
+            ['# DIAS','# DÍAS','DIAS','DÍAS','NO. DIAS','NO. DÍAS','NUMERO DE DIAS','NÚMERO DE DÍAS'],
+            'DIAS'
+          ]);
 
-  licencias.push([
+          const inicio = fechaLicencia(r, '');
+          const termino = fechaLicencia(r, '_2');
 
-    r['DIAGNOSTICO'] ||
-    r['DIAGNOSTICO_2'] ||
-    '—',
-
-    inicio,
-
-    termino,
-
-    r['# DIAS'] ||
-    r['DIAS'] ||
-    '—'
-  ]);
-}
+          licencias.push([
+            diagnostico,
+            inicio,
+            termino,
+            dias
+          ]);
+        }
 
         // =================================================
-        // LCGS
+        // LICENCIAS CON GOCE DE SUELDO
         // =================================================
 
-        else if(src.includes('LCGS')){
+        else if(isLCGS(src)){
 
           totalLCGS++;
 
           lcgs.push([
 
-            r['CONSECUTIVO'] ||
-            r['Consecutivo'] ||
-            '—',
+            firstVal(r, [
+              ['CONSECUTIVO','NO.','NUMERO','NÚMERO']
+            ]),
 
-            r['NO. DÍAS'] ||
-            r['No. Días'] ||
-            '—',
+            firstVal(r, [
+              ['NO. DÍAS','NO. DIAS','DIAS','DÍAS']
+            ]),
 
-            r['FECHA DE INICIO'] ||
-            r['Fecha de Inicio'] ||
-            '—',
+            outDate(firstVal(r, [
+              ['FECHA DE INICIO','FECHA INICIO','INICIO']
+            ])),
 
-            r['FECHA DE TERMINO'] ||
-            r['Fecha de Termino'] ||
-            '—',
+            outDate(firstVal(r, [
+              ['FECHA DE TERMINO','FECHA DE TÉRMINO','FECHA TERMINO','FECHA TÉRMINO','TERMINO','TÉRMINO']
+            ])),
 
-            r['TURNO'] ||
-            '—'
+            firstVal(r, [
+              ['TURNO','TURNO ','JORNADA'],
+              'TURNO'
+            ])
           ]);
         }
 
         // =================================================
-        // FACILIDADES
+        // FACILIDADES ADMINISTRATIVAS
         // =================================================
 
-        else if(src.includes('Facilidad')){
+        else if(isFac(src)){
 
           totalFac++;
 
           facilidades.push([
 
-            r['SERVICIO'] || '—',
+            firstVal(r, [
+              ['SERVICIO','ÁREA','AREA']
+            ]),
 
-            r['TURNO'] || '—',
+            firstVal(r, [
+              ['TURNO','TURNO ','JORNADA'],
+              'TURNO'
+            ]),
 
-            fmtTime(r['ENTRADA'] || '—'),
+            outTime(firstVal(r, [
+              ['ENTRADA','HORA ENTRADA']
+            ])),
 
-            fmtTime(r['SALIDA'] || '—')
+            outTime(firstVal(r, [
+              ['SALIDA','HORA SALIDA']
+            ])),
+
+            diasFacilidad(r)
           ]);
         }
 
@@ -695,16 +818,25 @@ loadData();
       startY:y,
 
       head:[[
-  'Diagnóstico',
-  'Inicio',
-  'Término',
-  'Días'
-]],
+        'Diagnóstico',
+        'Inicio',
+        'Término',
+        'Días'
+      ]],
 
       body:licencias,
 
       styles:{
-        fontSize:8
+        fontSize:8,
+        cellWidth:'wrap',
+        overflow:'linebreak'
+      },
+
+      columnStyles:{
+        0:{cellWidth:80},
+        1:{cellWidth:32},
+        2:{cellWidth:32},
+        3:{cellWidth:18}
       },
 
       headStyles:{
@@ -743,7 +875,8 @@ loadData();
       body:lcgs,
 
       styles:{
-        fontSize:8
+        fontSize:8,
+        overflow:'linebreak'
       },
 
       headStyles:{
@@ -775,13 +908,23 @@ loadData();
         'Servicio',
         'Turno',
         'Entrada',
-        'Salida'
+        'Salida',
+        'Día de facilidad'
       ]],
 
       body:facilidades,
 
       styles:{
-        fontSize:8
+        fontSize:8,
+        overflow:'linebreak'
+      },
+
+      columnStyles:{
+        0:{cellWidth:38},
+        1:{cellWidth:24},
+        2:{cellWidth:22},
+        3:{cellWidth:22},
+        4:{cellWidth:74}
       },
 
       headStyles:{
@@ -830,6 +973,7 @@ loadData();
 
   doc.save(`REPORTE_${safeName}.pdf`);
 }
+
 </script>
 </body>
 </html>
