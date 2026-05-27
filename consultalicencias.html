@@ -1,4 +1,4 @@
-<!DOCTYPE ht<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -533,48 +533,45 @@ loadData();
       recs.forEach(r => {
 
         // =================================================
-        // LICENCIAS MÉDICAS
+        // LICENCIAS MÉDICAS - PROBLEMA 1 CORREGIDO
         // =================================================
 
         if(src.includes('Control')){
 
-  totalLic++;
+          totalLic++;
 
-  // FECHA INICIO
-  const inicio =
-    (r['D'] || '--') + '/' +
-    (r['M'] || '--') + '/' +
-    (r['A'] || '--');
+          // FECHA INICIO - buscar en múltiples variantes
+          const inicioVal = r['Inicio'] || r['INICIO'] || r['Fecha de Inicio'] || r['FECHA DE INICIO'] || '--';
+          const inicio = isISODate(String(inicioVal)) ? fmtDate(String(inicioVal)) : String(inicioVal);
 
-  // FECHA TERMINO
-  const termino =
-    (r['D_2'] || '--') + '/' +
-    (r['M_2'] || '--') + '/' +
-    (r['A'] || '--');
+          // FECHA TERMINO - buscar en múltiples variantes
+          const terminoVal = r['Termino'] || r['TERMINO'] || r['Fecha de Termino'] || r['FECHA DE TERMINO'] || '--';
+          const termino = isISODate(String(terminoVal)) ? fmtDate(String(terminoVal)) : String(terminoVal);
 
-  licencias.push([
+          // DIAGNOSTICO - buscar en múltiples variantes
+          const diagnostico = r['Diagnóstico'] || r['DIAGNOSTICO'] || r['Diagnostico'] || r['DIAGNOSTICO_2'] || '—';
 
-    r['DIAGNOSTICO'] ||
-    r['DIAGNOSTICO_2'] ||
-    '—',
+          // DÍAS - buscar en múltiples variantes
+          const dias = r['Días'] || r['DIAS'] || r['# DIAS'] || r['# Días'] || '—';
 
-    inicio,
-
-    termino,
-
-    r['# DIAS'] ||
-    r['DIAS'] ||
-    '—'
-  ]);
-}
+          licencias.push([
+            diagnostico,
+            inicio,
+            termino,
+            dias
+          ]);
+        }
 
         // =================================================
-        // LCGS
+        // LCGS - PROBLEMA 2 CORREGIDO
         // =================================================
 
         else if(src.includes('LCGS')){
 
           totalLCGS++;
+
+          // Buscar turno en múltiples variantes
+          const turno = r['TURNO'] || r['Turno'] || r['TURNOS'] || r['Turnos'] || '—';
 
           lcgs.push([
 
@@ -584,23 +581,26 @@ loadData();
 
             r['NO. DÍAS'] ||
             r['No. Días'] ||
+            r['DÍAS'] ||
+            r['Días'] ||
             '—',
 
             r['FECHA DE INICIO'] ||
             r['Fecha de Inicio'] ||
+            r['Inicio'] ||
             '—',
 
             r['FECHA DE TERMINO'] ||
             r['Fecha de Termino'] ||
+            r['Termino'] ||
             '—',
 
-            r['TURNO'] ||
-            '—'
+            turno
           ]);
         }
 
         // =================================================
-        // FACILIDADES
+        // FACILIDADES - PROBLEMA 3 CORREGIDO
         // =================================================
 
         else if(src.includes('Facilidad')){
