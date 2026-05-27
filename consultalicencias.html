@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 /* ===== ESTILOS ORIGINALES (se mantienen) ===== */
-:root{--bg:#0d1117;--sur:#161b22;--sur2:#1c2230;--brd:#30363d;--acc:#00d9a3;--acc2:#0ea5e9;--acc3:#f59e0b;--acc4:#a855f7;--warn:#f59e0b;--tx:#e6edf3;--tx2:#8b949e;--tx3:#3d444d}
+:root{--bg:#f4f6f8;--sur:#ffffff;--sur2:#eef2f6;--brd:#d8dee6;--acc:#1f5f8b;--acc2:#2f6f63;--acc3:#7a8694;--acc4:#1f5f8b;--warn:#7a8694;--tx:#1f2933;--tx2:#5f6b7a;--tx3:#9aa4b2;--soft:#f8fafc;--muted:#eef2f6}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
 header{background:var(--sur);border-bottom:1px solid var(--brd);padding:13px 24px;display:flex;align-items:center;gap:12px}
@@ -126,7 +126,7 @@ tbody tr:hover td{background:var(--sur2)}
 .adv-title h2{font-size:18px;margin-bottom:4px}
 .adv-title p{font-size:11px;color:var(--tx2);line-height:1.4}
 .adv-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.adv-btn{background:var(--acc4);border:1px solid rgba(168,85,247,.45);color:#fff;border-radius:8px;padding:8px 10px;font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;cursor:pointer}
+.adv-btn{background:#1f5f8b;border:none;color:#fff;border-radius:8px;padding:8px 10px;font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;cursor:pointer}
 .adv-btn.secondary{background:var(--sur2);color:var(--tx);border-color:var(--brd)}
 .adv-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;padding:12px;border:1px solid var(--brd);border-radius:10px;background:var(--sur)}
 .adv-field{display:flex;flex-direction:column;gap:5px}
@@ -155,22 +155,506 @@ tbody tr:hover td{background:var(--sur2)}
 .adv-note{font-size:10px;color:var(--tx2);padding:10px 12px;line-height:1.4;border-top:1px solid var(--brd)}
 .empty-adv{padding:30px;text-align:center;color:var(--tx3);font-size:12px}
 
+
+/* ===== DISEÑO LIMPIO Y ACCESIBLE ===== */
+*{scrollbar-width:thin}
+body{
+  background:#f4f6f8;
+  color:var(--tx);
+  font-size:15px;
+}
+header{
+  background:#ffffff;
+  border-bottom:1px solid var(--brd);
+  padding:16px 24px;
+  box-shadow:0 2px 10px rgba(31,41,51,.06);
+}
+.logo{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  background:#1f5f8b;
+  color:#fff;
+  font-size:14px;
+  box-shadow:none;
+}
+.hdr-txt h1{
+  color:#1f2933;
+  font-size:17px;
+  letter-spacing:0;
+}
+.hdr-txt p{
+  color:#667383;
+  font-size:12px;
+  margin-top:3px;
+}
+.pills{
+  gap:8px;
+}
+.pill{
+  background:#f8fafc;
+  border:1px solid #d8dee6;
+  color:#5f6b7a;
+  font-size:11px;
+  padding:6px 12px;
+}
+.pill b{
+  color:#1f5f8b;
+}
+.pills button{
+  background:#1f5f8b !important;
+  border:none !important;
+  color:#fff !important;
+  padding:7px 13px !important;
+  border-radius:8px !important;
+  font-size:11px !important;
+  box-shadow:none !important;
+}
+.layout{
+  grid-template-columns:340px 1fr;
+  height:calc(100vh - 75px);
+  background:#f4f6f8;
+}
+.left{
+  background:#ffffff;
+  border-right:1px solid var(--brd);
+}
+.sbox{
+  padding:18px;
+  background:#ffffff;
+}
+.slbl{
+  color:#5f6b7a;
+  font-size:11px;
+  letter-spacing:.04em;
+}
+.si{
+  background:#ffffff;
+  border:1px solid #cfd7e2;
+  color:#1f2933;
+  border-radius:10px;
+  padding:11px 36px 11px 38px;
+  font-size:13px;
+}
+.si:focus{
+  border-color:#1f5f8b;
+  box-shadow:0 0 0 3px rgba(31,95,139,.12);
+}
+.s-ico{color:#7a8694}
+.s-clr{color:#7a8694}
+.ac{
+  background:#ffffff;
+  border:1px solid #d8dee6;
+  box-shadow:0 10px 25px rgba(31,41,51,.12);
+  border-radius:0 0 10px 10px;
+}
+.aci{
+  padding:11px 13px;
+}
+.aci:hover,.aci.act{
+  background:#eef5fa;
+}
+.aci-rfc,.ri-rfc{
+  color:#1f5f8b;
+  font-size:11px;
+}
+.aci-nom,.ri-nom{
+  color:#5f6b7a;
+  font-size:11px;
+}
+.slist{
+  padding:14px;
+}
+.s-sec-lbl{
+  color:#7a8694;
+  font-size:10px;
+}
+.ri{
+  padding:9px 10px;
+  border-radius:9px;
+  margin-bottom:4px;
+}
+.ri:hover{
+  background:#f1f5f9;
+}
+.ri.act{
+  background:#eef5fa;
+  border-left:4px solid #1f5f8b;
+  padding-left:8px;
+}
+.right{
+  background:#f4f6f8;
+}
+.rp{
+  padding:24px;
+}
+.empty{
+  color:#7a8694;
+}
+.empty h2{
+  color:#5f6b7a;
+  font-size:18px;
+}
+.empty p{
+  font-size:13px;
+}
+.loading{
+  color:#5f6b7a;
+}
+.spinner{
+  border-color:#d8dee6;
+  border-top-color:#1f5f8b;
+}
+.ph{
+  background:#ffffff;
+  border:1px solid #d8dee6;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:22px;
+  box-shadow:0 4px 16px rgba(31,41,51,.06);
+}
+.av{
+  background:#1f5f8b;
+  color:#fff;
+  border-radius:12px;
+}
+.pi-rfc{
+  color:#667383;
+  font-size:11px;
+}
+.pi-nom{
+  color:#1f2933;
+  font-size:21px;
+}
+.chip,.tag{
+  border-radius:999px;
+  font-size:10px;
+  padding:3px 9px;
+}
+.chip-c,.tag-c,
+.chip-l,.tag-l,
+.chip-f,.tag-f{
+  background:#eef2f6;
+  color:#425466;
+  border:1px solid #d8dee6;
+}
+.tot-n{
+  color:#1f5f8b;
+  font-size:30px;
+}
+.tot-l{
+  color:#667383;
+  font-size:11px;
+}
+.tot button{
+  background:#1f5f8b !important;
+  color:#fff !important;
+  border:none !important;
+  border-radius:9px !important;
+  padding:9px 13px !important;
+  font-size:12px !important;
+  box-shadow:none !important;
+}
+.fsec{
+  background:#ffffff;
+  border:1px solid #d8dee6;
+  border-radius:16px;
+  padding:6px 10px 14px;
+  box-shadow:0 3px 12px rgba(31,41,51,.04);
+}
+.fhdr{
+  padding:13px 12px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+.fhdr:hover{
+  background:#f1f5f9;
+}
+.fdot{
+  width:10px;
+  height:10px;
+}
+.src-c .fdot,
+.src-l .fdot,
+.src-f .fdot{
+  background:#1f5f8b;
+}
+.src-c .fnam,
+.src-l .fnam,
+.src-f .fnam{
+  color:#1f2933;
+}
+.fnam{
+  font-size:14px;
+}
+.fcnt{
+  color:#667383;
+  font-size:11px;
+}
+.ssec{
+  margin-left:0;
+  margin-bottom:12px;
+}
+.sttl{
+  background:#eef2f6;
+  color:#425466;
+  padding:9px 12px;
+  font-size:11px;
+  border-color:#d8dee6;
+}
+.sbdg{
+  background:#ffffff;
+  color:#5f6b7a;
+  border-color:#d8dee6;
+}
+.tw{
+  border-color:#d8dee6;
+  border-radius:0 0 10px 10px;
+  background:#ffffff;
+}
+table{
+  font-size:12px;
+}
+thead tr{
+  background:#eef2f6;
+}
+th{
+  color:#425466;
+  font-size:10px;
+  padding:9px 11px;
+}
+td{
+  color:#1f2933;
+  border-bottom:1px solid #edf1f5;
+  padding:9px 11px;
+}
+tbody tr:hover td{
+  background:#f8fafc;
+}
+.nc,.dc,.tc{
+  color:#1f5f8b;
+  font-weight:600;
+}
+.rn{
+  color:#7a8694;
+}
+.fac-info{
+  background:#ffffff;
+  border-color:#d8dee6;
+  padding:12px;
+}
+.fac-grid{
+  background:#ffffff;
+  border-color:#d8dee6;
+  gap:10px;
+  padding:12px;
+}
+.fac-key{
+  color:#7a8694;
+  font-size:10px;
+}
+.fac-val{
+  color:#1f2933;
+  font-size:13px;
+}
+.fac-val.time{
+  color:#1f5f8b;
+}
+.mes-card{
+  background:#f8fafc;
+  border:1px solid #d8dee6;
+  border-left:4px solid #1f5f8b;
+  border-radius:10px;
+  padding:11px 12px;
+}
+.mes-nom{
+  color:#5f6b7a;
+  font-size:10px;
+}
+.mes-val{
+  color:#1f5f8b;
+}
+.day-chip,.day-range{
+  background:#ffffff;
+  border:1px solid #cfd7e2;
+  color:#1f5f8b;
+  font-size:11px;
+  padding:3px 7px;
+}
+.mes-card.empty-mes{
+  opacity:.5;
+  border-left-color:#cfd7e2;
+}
+.adv-wrap{
+  gap:18px;
+}
+.adv-head{
+  background:#ffffff;
+  border:1px solid #d8dee6;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 4px 16px rgba(31,41,51,.06);
+}
+.adv-title h2{
+  color:#1f2933;
+  font-size:22px;
+  margin-bottom:6px;
+}
+.adv-title p{
+  color:#5f6b7a;
+  font-size:13px;
+}
+.adv-actions{
+  gap:10px;
+}
+.adv-btn{
+  background:#1f5f8b;
+  border:none;
+  color:#fff;
+  border-radius:10px;
+  padding:10px 13px;
+  font-size:11px;
+  box-shadow:none;
+}
+.adv-btn.secondary{
+  background:#ffffff;
+  color:#1f5f8b;
+  border:1px solid #cfd7e2;
+}
+.adv-filters{
+  background:#ffffff;
+  border:1px solid #d8dee6;
+  border-radius:16px;
+  padding:16px;
+  gap:13px;
+  box-shadow:0 3px 12px rgba(31,41,51,.04);
+}
+.adv-field label{
+  color:#5f6b7a;
+  font-size:10px;
+}
+.adv-field select,.adv-field input{
+  background:#ffffff;
+  border:1px solid #cfd7e2;
+  border-radius:10px;
+  color:#1f2933;
+  font-size:13px;
+  padding:10px;
+}
+.adv-field select:focus,.adv-field input:focus{
+  border-color:#1f5f8b;
+  box-shadow:0 0 0 3px rgba(31,95,139,.12);
+}
+.kpi-grid{
+  gap:13px;
+}
+.kpi{
+  background:#ffffff;
+  border:1px solid #d8dee6;
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 3px 12px rgba(31,41,51,.04);
+}
+.kpi:before{
+  width:5px;
+  background:#1f5f8b;
+}
+.kpi-num{
+  color:#1f5f8b;
+  font-size:30px;
+}
+.kpi-lbl{
+  color:#425466;
+  font-size:11px;
+}
+.kpi-sub{
+  color:#7a8694;
+  font-size:11px;
+}
+.adv-grid{
+  gap:16px;
+}
+.adv-card{
+  background:#ffffff;
+  border:1px solid #d8dee6;
+  border-radius:16px;
+  box-shadow:0 3px 12px rgba(31,41,51,.04);
+}
+.adv-card-h{
+  background:#f8fafc;
+  border-bottom:1px solid #d8dee6;
+  padding:14px 16px;
+}
+.adv-card-h h3{
+  color:#1f2933;
+  font-size:14px;
+}
+.adv-card-h span{
+  color:#667383;
+}
+.bar-list{
+  padding:16px;
+  gap:12px;
+}
+.bar-row{
+  grid-template-columns:minmax(150px,1fr) 1.7fr 70px;
+}
+.bar-name{
+  color:#1f2933;
+  font-size:12px;
+}
+.bar-track{
+  height:10px;
+  background:#eef2f6;
+  border:1px solid #d8dee6;
+}
+.bar-fill{
+  background:#1f5f8b;
+}
+.bar-val{
+  color:#5f6b7a;
+  font-size:11px;
+}
+.adv-table-wrap{
+  max-height:460px;
+}
+.adv-note{
+  color:#667383;
+  background:#f8fafc;
+  font-size:11px;
+}
+.empty-adv{
+  color:#7a8694;
+  font-size:13px;
+}
+button:hover,.adv-btn:hover{
+  opacity:.92;
+  transform:none;
+  box-shadow:none;
+}
+::-webkit-scrollbar-thumb{
+  background:#cfd7e2;
+}
+::-webkit-scrollbar-thumb:hover{
+  background:#aeb9c6;
+}
+
 </style>
 </head>
 <body>
 <header>
   <div class="logo">HM</div>
   <div class="hdr-txt">
-    <h1>Control de Licencias — Hospital de la Mujer</h1>
-    <p>Consulta unificada · 4 archivos · Licencias médicas, LCGS y facilidades administrativas</p>
+    <h1>Sistema de Control de Licencias y Facilidades</h1>
+    <p>Hospital de la Mujer · Consulta y reportes administrativos</p>
   </div>
   <div class="pills">
     <div class="pill">Personas: <b id="sp">—</b></div>
     <div class="pill">Registros: <b id="sr">—</b></div>
     <div class="pill">Archivos: <b>4</b></div>
     <button onclick="openReporteFacilidadesAvanzado()" style="
-      background:var(--acc4);
-      border:1px solid rgba(168,85,247,.45);
+      background:#1f5f8b;
+      border:none;
       color:#fff;
       padding:5px 10px;
       border-radius:20px;
@@ -879,7 +1363,7 @@ loadData();
   // HEADER
   // =====================================================
 
-  doc.setFillColor(13,17,23);
+  doc.setFillColor(31,95,139);
   doc.rect(0,0,210,30,'F');
 
   doc.setTextColor(255,255,255);
@@ -967,7 +1451,7 @@ loadData();
       },
 
       headStyles:{
-        fillColor:[0,217,163]
+        fillColor:[31,95,139]
       }
 
     });
@@ -1007,7 +1491,7 @@ loadData();
       },
 
       headStyles:{
-        fillColor:[14,165,233]
+        fillColor:[31,95,139]
       }
 
     });
@@ -1055,7 +1539,7 @@ loadData();
       },
 
       headStyles:{
-        fillColor:[168,85,247]
+        fillColor:[31,95,139]
       }
 
     });
@@ -1263,7 +1747,7 @@ async function genReporteGlobalFacMes(mesIndex = new Date().getMonth(), anio = n
   // HEADER
   // =====================================================
 
-  doc.setFillColor(13,17,23);
+  doc.setFillColor(31,95,139);
   doc.rect(0,0,210,32,'F');
   doc.setTextColor(255,255,255);
   doc.setFontSize(17);
@@ -1301,7 +1785,7 @@ async function genReporteGlobalFacMes(mesIndex = new Date().getMonth(), anio = n
         .sort((a,b) => b[1]-a[1] || String(a[0]).localeCompare(String(b[0]),'es')),
       styles:{fontSize:8, overflow:'linebreak'},
       columnStyles:{0:{cellWidth:140},1:{cellWidth:25, halign:'center'}},
-      headStyles:{fillColor:[168,85,247]}
+      headStyles:{fillColor:[31,95,139]}
     });
 
     y = doc.lastAutoTable.finalY + 12;
@@ -1318,7 +1802,7 @@ async function genReporteGlobalFacMes(mesIndex = new Date().getMonth(), anio = n
         .sort((a,b) => b[1]-a[1] || String(a[0]).localeCompare(String(b[0]),'es')),
       styles:{fontSize:8, overflow:'linebreak'},
       columnStyles:{0:{cellWidth:80},1:{cellWidth:25, halign:'center'}},
-      headStyles:{fillColor:[168,85,247]}
+      headStyles:{fillColor:[31,95,139]}
     });
 
     y = doc.lastAutoTable.finalY + 12;
@@ -1342,7 +1826,7 @@ async function genReporteGlobalFacMes(mesIndex = new Date().getMonth(), anio = n
         5:{cellWidth:17},
         6:{cellWidth:34}
       },
-      headStyles:{fillColor:[168,85,247]}
+      headStyles:{fillColor:[31,95,139]}
     });
   }
 
@@ -1596,18 +2080,18 @@ function pdfWrapText(doc,text,x,y,maxWidth,lineHeight=4){
   return y + (lines.length*lineHeight);
 }
 function pdfStatCard(doc,x,y,w,h,title,value,sub,accent){
-  doc.setFillColor(24,28,36); doc.roundedRect(x,y,w,h,3,3,'F');
+  doc.setFillColor(31,95,139); doc.roundedRect(x,y,w,h,3,3,'F');
   doc.setFillColor(accent[0],accent[1],accent[2]); doc.roundedRect(x,y,3,h,2,2,'F');
-  doc.setTextColor(150,160,175); doc.setFontSize(8); doc.text(String(title||''),x+7,y+7);
+  doc.setTextColor(230,238,245); doc.setFontSize(8); doc.text(String(title||''),x+7,y+7);
   doc.setTextColor(accent[0],accent[1],accent[2]); doc.setFontSize(18); doc.text(String(value||'0'),x+7,y+17);
-  doc.setTextColor(120,128,140); doc.setFontSize(7); pdfWrapText(doc,sub||'',x+7,y+23,w-10,3.2);
+  doc.setTextColor(230,238,245); doc.setFontSize(7); pdfWrapText(doc,sub||'',x+7,y+23,w-10,3.2);
 }
 function pdfSectionTitle(doc,title,subtitle,x,y,w){
   doc.setFillColor(245,246,250); doc.roundedRect(x,y,w,10,2,2,'F');
   doc.setTextColor(30,35,45); doc.setFontSize(12); doc.text(title,x+4,y+6.5);
   if(subtitle){ doc.setTextColor(120,128,140); doc.setFontSize(7); doc.text(subtitle,x+w-4,y+6.5,{align:'right'}); }
 }
-function pdfHBarChart(doc,{x,y,w,title,data,total,accent=[168,85,247],limit=6,labelWidth=48,rowH=10}){
+function pdfHBarChart(doc,{x,y,w,title,data,total,accent=[31,95,139],limit=6,labelWidth=48,rowH=10}){
   const items=(data||[]).slice(0,limit);
   const chartH=Math.max(24, items.length*rowH+10);
   doc.setFillColor(255,255,255); doc.roundedRect(x,y,w,chartH,3,3,'F');
@@ -1628,7 +2112,7 @@ function pdfHBarChart(doc,{x,y,w,title,data,total,accent=[168,85,247],limit=6,la
   });
   return y+chartH;
 }
-function pdfVBarChart(doc,{x,y,w,title,data,total,accent=[14,165,233],limit=8}){
+function pdfVBarChart(doc,{x,y,w,title,data,total,accent=[31,95,139],limit=8}){
   const items=(data||[]).slice(0,limit);
   const h=58;
   doc.setFillColor(255,255,255); doc.roundedRect(x,y,w,h,3,3,'F');
@@ -1708,7 +2192,7 @@ function genPDFReporteFacilidadesAvanzado(){
   // PÁGINA 1: DASHBOARD VISUAL
   // =====================================================
 
-  doc.setFillColor(13,17,23);
+  doc.setFillColor(31,95,139);
   doc.rect(0,0,297,34,'F');
 
   doc.setTextColor(255,255,255);
@@ -1722,11 +2206,11 @@ function genPDFReporteFacilidadesAvanzado(){
   doc.text(`Generado: ${generated}`,282,15,{align:'right'});
 
   // Tarjetas KPI con más aire
-  pdfStatCard(doc,14,42,50,25,'FACILIDADES',String(total),'Eventos reales filtrados',[168,85,247]);
-  pdfStatCard(doc,68,42,50,25,'PERSONAS',String(personas),'RFC únicos',[14,165,233]);
-  pdfStatCard(doc,122,42,50,25,'ÁREAS',String(servicios),'Servicios distintos',[0,217,163]);
-  pdfStatCard(doc,176,42,50,25,'TURNOS',String(turnosCount),'Turnos encontrados',[245,158,11]);
-  pdfStatCard(doc,230,42,52,25,'PROMEDIO',String(promedio),'Facilidades/persona',[236,72,153]);
+  pdfStatCard(doc,14,42,50,25,'FACILIDADES',String(total),'Eventos reales filtrados',[31,95,139]);
+  pdfStatCard(doc,68,42,50,25,'PERSONAS',String(personas),'RFC únicos',[31,95,139]);
+  pdfStatCard(doc,122,42,50,25,'ÁREAS',String(servicios),'Servicios distintos',[31,95,139]);
+  pdfStatCard(doc,176,42,50,25,'TURNOS',String(turnosCount),'Turnos encontrados',[122,134,148]);
+  pdfStatCard(doc,230,42,52,25,'PROMEDIO',String(promedio),'Facilidades/persona',[31,95,139]);
 
   pdfSectionTitle(doc,'Resumen visual','Distribución general del periodo filtrado',14,75,268);
 
@@ -1735,7 +2219,7 @@ function genPDFReporteFacilidadesAvanzado(){
     x:14,y:90,w:128,
     title:'Top áreas / servicios',
     data:porServicio,total,
-    accent:[168,85,247],
+    accent:[31,95,139],
     limit:6,
     labelWidth:55,
     rowH:10
@@ -1745,7 +2229,7 @@ function genPDFReporteFacilidadesAvanzado(){
     x:154,y:90,w:128,
     title:'Top personas con más facilidades',
     data:porPersona,total,
-    accent:[14,165,233],
+    accent:[31,95,139],
     limit:6,
     labelWidth:72,
     rowH:10
@@ -1756,7 +2240,7 @@ function genPDFReporteFacilidadesAvanzado(){
     x:14,y:162,w:128,
     title:'Distribución por turno',
     data:porTurno,total,
-    accent:[245,158,11],
+    accent:[122,134,148],
     limit:8,
     labelWidth:42,
     rowH:9
@@ -1766,7 +2250,7 @@ function genPDFReporteFacilidadesAvanzado(){
     x:154,y:162,w:128,
     title:'Comportamiento por mes',
     data:porMes,total,
-    accent:[0,217,163],
+    accent:[31,95,139],
     limit:10
   });
 
@@ -1785,7 +2269,7 @@ function genPDFReporteFacilidadesAvanzado(){
   // =====================================================
 
   doc.addPage('landscape');
-  doc.setFillColor(13,17,23);
+  doc.setFillColor(31,95,139);
   doc.rect(0,0,297,24,'F');
 
   doc.setTextColor(255,255,255);
@@ -1810,7 +2294,7 @@ function genPDFReporteFacilidadesAvanzado(){
       body:porServicio.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),
       styles:{fontSize:7,overflow:'linebreak',cellPadding:2},
       columnStyles:{0:{cellWidth:88},1:{cellWidth:18,halign:'center'},2:{cellWidth:22,halign:'center'}},
-      headStyles:{fillColor:[168,85,247]}
+      headStyles:{fillColor:[31,95,139]}
     });
 
     // Turnos arriba derecha
@@ -1822,7 +2306,7 @@ function genPDFReporteFacilidadesAvanzado(){
       body:porTurno.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),
       styles:{fontSize:7,cellPadding:2},
       columnStyles:{0:{cellWidth:30},1:{cellWidth:12,halign:'center'},2:{cellWidth:16,halign:'center'}},
-      headStyles:{fillColor:[14,165,233]}
+      headStyles:{fillColor:[31,95,139]}
     });
 
     // Mes arriba derecha
@@ -1834,7 +2318,7 @@ function genPDFReporteFacilidadesAvanzado(){
       body:porMes.slice(0,12).map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),
       styles:{fontSize:7,cellPadding:2},
       columnStyles:{0:{cellWidth:30},1:{cellWidth:12,halign:'center'},2:{cellWidth:16,halign:'center'}},
-      headStyles:{fillColor:[0,217,163]}
+      headStyles:{fillColor:[31,95,139]}
     });
 
     // Top personas en tabla completa abajo, ya no angosta
@@ -1860,7 +2344,7 @@ function genPDFReporteFacilidadesAvanzado(){
         3:{cellWidth:20,halign:'center'},
         4:{cellWidth:20,halign:'center'}
       },
-      headStyles:{fillColor:[245,158,11]}
+      headStyles:{fillColor:[122,134,148]}
     });
   }
 
@@ -1871,7 +2355,7 @@ function genPDFReporteFacilidadesAvanzado(){
   if(rows.length){
     doc.addPage('landscape');
 
-    doc.setFillColor(13,17,23);
+    doc.setFillColor(31,95,139);
     doc.rect(0,0,297,24,'F');
 
     doc.setTextColor(255,255,255);
@@ -1900,7 +2384,7 @@ function genPDFReporteFacilidadesAvanzado(){
         8:{cellWidth:24},
         9:{cellWidth:16}
       },
-      headStyles:{fillColor:[168,85,247]},
+      headStyles:{fillColor:[31,95,139]},
       margin:{bottom:14}
     });
   }
