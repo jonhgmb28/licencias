@@ -132,6 +132,17 @@ tbody tr:hover td{background:var(--sur2)}
     <div class="pill">Personas: <b id="sp">—</b></div>
     <div class="pill">Registros: <b id="sr">—</b></div>
     <div class="pill">Archivos: <b>4</b></div>
+    <button onclick="genReporteGlobalFacMes()" style="
+      background:var(--acc4);
+      border:1px solid rgba(168,85,247,.45);
+      color:#fff;
+      padding:5px 10px;
+      border-radius:20px;
+      cursor:pointer;
+      font-size:10px;
+      font-family:'IBM Plex Mono',monospace;
+      font-weight:600;
+    ">Reporte facilidades este mes</button>
   </div>
 </header>
 
@@ -1052,6 +1063,264 @@ loadData();
       .replace(/\s+/g,'_');
 
   doc.save(`REPORTE_${safeName}.pdf`);
+}
+
+
+// =====================================================
+// REPORTE GLOBAL: FACILIDADES OTORGADAS EN EL MES ACTUAL
+// =====================================================
+async function genReporteGlobalFacMes(mesIndex = new Date().getMonth(), anio = new Date().getFullYear()){
+
+  if(!DB){
+    alert('Primero espera a que cargue la base de datos.');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const MESES = [
+    'ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO',
+    'JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'
+  ];
+
+  const mesNombre = MESES[mesIndex];
+  const mesNumero = String(mesIndex + 1).padStart(2,'0');
+  const anioStr = String(anio);
+
+  function normKey(k){
+    return String(k || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'')
+      .toUpperCase()
+      .replace(/\s+/g,' ')
+      .trim();
+  }
+
+  function isFacSource(src){
+    return normKey(src).includes('FACILIDAD');
+  }
+
+  function valByNames(row, names){
+    const wanted = names.map(normKey);
+    for(const [k,v] of Object.entries(row)){
+      if(v === null || v === undefined || String(v).trim() === '') continue;
+      if(wanted.includes(normKey(k))) return v;
+    }
+    return '';
+  }
+
+  function outTime(v){
+    if(v === null || v === undefined || String(v).trim() === '') return '—';
+    const s = String(v).trim();
+    return isExcelTime(s) ? fmtTime(s) : s;
+  }
+
+  function cleanFacilityValue(v){
+    if(v === null || v === undefined) return '';
+    let s = String(v).trim();
+    if(!s || s === '.' || s === '}') return '';
+    if(isISODate(s)) return fmtDate(s);
+    return s.replace(/\\/g,'/').replace(/,\s*$/,'').trim();
+  }
+
+  function expandDiasFacilidad(valor){
+    const v = cleanFacilityValue(valor);
+    if(!v) return [];
+
+    // Fecha completa única: 12/05/2026
+    if(/^\d{2}\/\d{2}\/\d{4}$/.test(v)) return [v];
+
+    // Formatos esperados:
+    // 12/15/05/2026 = 2 facilidades
+    // 12,15/05/2026 = 2 facilidades
+    // 12-15/05/2026 = 1 facilidad
+    const match = v.match(/^(.+)\/(\d{1,2})\/(\d{4})$/);
+    if(!match) return [v];
+
+    const diasPart = match[1].trim();
+    const mm = String(parseInt(match[2],10)).padStart(2,'0');
+    const yr = match[3];
+    const eventos = [];
+
+    diasPart.split('/').forEach(token => {
+      token = token.trim();
+      if(!token) return;
+
+      if(token.includes('-')){
+        const partes = token.split('-').map(x => x.trim()).filter(Boolean);
+        if(partes.length === 2){
+          eventos.push(`${pad(partes[0])}-${pad(partes[1])}/${mm}/${yr}`);
+        } else {
+          eventos.push(`${token}/${mm}/${yr}`);
+        }
+      } else if(token.includes(',')){
+        token.split(',').map(x => x.trim()).filter(Boolean).forEach(d => {
+          eventos.push(`${pad(d)}/${mm}/${yr}`);
+        });
+      } else {
+        eventos.push(`${pad(token)}/${mm}/${yr}`);
+      }
+    });
+
+    return eventos.length ? eventos : [v];
+  }
+
+  function getCampoMes(row){
+    return Object.keys(row).find(k => {
+      const nk = normKey(k);
+      return nk.includes('FACILIDADES ADMINISTRATIVAS') &&
+             nk.includes(mesNombre) &&
+             nk.includes(anioStr);
+    });
+  }
+
+  const detalle = [];
+  const porPersona = new Map();
+  const porServicio = new Map();
+  const porTurno = new Map();
+
+  Object.values(DB).forEach(persona => {
+    Object.entries(persona.fuentes || {}).forEach(([src, sheets]) => {
+      if(!isFacSource(src)) return;
+
+      Object.values(sheets || {}).forEach(recs => {
+        (recs || []).forEach(row => {
+          const campoMes = getCampoMes(row);
+          if(!campoMes) return;
+
+          const eventos = expandDiasFacilidad(row[campoMes]);
+          if(!eventos.length) return;
+
+          const servicio = valByNames(row, ['SERVICIO','AREA','ÁREA']) || '—';
+          const turno = valByNames(row, ['TURNO','JORNADA']) || '—';
+          const entrada = outTime(valByNames(row, ['ENTRADA','HORA ENTRADA']));
+          const salida = outTime(valByNames(row, ['SALIDA','HORA SALIDA']));
+
+          eventos.forEach(dia => {
+            detalle.push({
+              rfc: persona.rfc || '—',
+              nombre: persona.nombre || 'SIN NOMBRE',
+              servicio,
+              turno,
+              entrada,
+              salida,
+              dia
+            });
+
+            const pKey = `${persona.rfc || '—'} | ${persona.nombre || 'SIN NOMBRE'}`;
+            porPersona.set(pKey, (porPersona.get(pKey) || 0) + 1);
+            porServicio.set(servicio, (porServicio.get(servicio) || 0) + 1);
+            porTurno.set(turno, (porTurno.get(turno) || 0) + 1);
+          });
+        });
+      });
+    });
+  });
+
+  detalle.sort((a,b) =>
+    String(a.nombre).localeCompare(String(b.nombre),'es') ||
+    String(a.dia).localeCompare(String(b.dia),'es')
+  );
+
+  // =====================================================
+  // HEADER
+  // =====================================================
+
+  doc.setFillColor(13,17,23);
+  doc.rect(0,0,210,32,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(17);
+  doc.text('Reporte Global de Facilidades Administrativas',14,15);
+  doc.setFontSize(10);
+  doc.text(`Mes: ${mesNombre} ${anioStr} · Hospital de la Mujer`,14,23);
+
+  let y = 42;
+  doc.setTextColor(0,0,0);
+
+  doc.setFillColor(245,245,245);
+  doc.roundedRect(14,y,180,26,3,3,'F');
+  doc.setFontSize(13);
+  doc.text(`Total de facilidades otorgadas: ${detalle.length}`,20,y+11);
+  doc.setFontSize(10);
+  doc.text(`Personas con facilidad: ${porPersona.size}`,20,y+20);
+  doc.text(`Servicios registrados: ${porServicio.size}`,100,y+20);
+
+  y += 38;
+
+  if(!detalle.length){
+    doc.setFontSize(12);
+    doc.text(`No se encontraron facilidades administrativas para ${mesNombre} ${anioStr}.`,14,y);
+  } else {
+
+    // RESUMEN POR SERVICIO
+    doc.setFontSize(14);
+    doc.text('Resumen por servicio',14,y);
+    y += 4;
+
+    doc.autoTable({
+      startY:y,
+      head:[['Servicio','Total']],
+      body:Array.from(porServicio.entries())
+        .sort((a,b) => b[1]-a[1] || String(a[0]).localeCompare(String(b[0]),'es')),
+      styles:{fontSize:8, overflow:'linebreak'},
+      columnStyles:{0:{cellWidth:140},1:{cellWidth:25, halign:'center'}},
+      headStyles:{fillColor:[168,85,247]}
+    });
+
+    y = doc.lastAutoTable.finalY + 12;
+
+    // RESUMEN POR TURNO
+    doc.setFontSize(14);
+    doc.text('Resumen por turno',14,y);
+    y += 4;
+
+    doc.autoTable({
+      startY:y,
+      head:[['Turno','Total']],
+      body:Array.from(porTurno.entries())
+        .sort((a,b) => b[1]-a[1] || String(a[0]).localeCompare(String(b[0]),'es')),
+      styles:{fontSize:8, overflow:'linebreak'},
+      columnStyles:{0:{cellWidth:80},1:{cellWidth:25, halign:'center'}},
+      headStyles:{fillColor:[168,85,247]}
+    });
+
+    y = doc.lastAutoTable.finalY + 12;
+
+    // DETALLE
+    doc.setFontSize(14);
+    doc.text('Detalle de facilidades',14,y);
+    y += 4;
+
+    doc.autoTable({
+      startY:y,
+      head:[[ 'RFC','Nombre','Servicio','Turno','Entrada','Salida','Día de facilidad' ]],
+      body:detalle.map(d => [d.rfc,d.nombre,d.servicio,d.turno,d.entrada,d.salida,d.dia]),
+      styles:{fontSize:7, overflow:'linebreak'},
+      columnStyles:{
+        0:{cellWidth:24},
+        1:{cellWidth:42},
+        2:{cellWidth:36},
+        3:{cellWidth:18},
+        4:{cellWidth:17},
+        5:{cellWidth:17},
+        6:{cellWidth:34}
+      },
+      headStyles:{fillColor:[168,85,247]}
+    });
+  }
+
+  // FOOTER
+  const pageCount = doc.internal.getNumberOfPages();
+  for(let i=1;i<=pageCount;i++){
+    doc.setPage(i);
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+    doc.text(`Generado: ${new Date().toLocaleString('es-MX')}`,14,290);
+    doc.text(`Página ${i} de ${pageCount}`,170,290);
+  }
+
+  doc.save(`REPORTE_GLOBAL_FACILIDADES_${mesNombre}_${anioStr}.pdf`);
 }
 
 </script>
