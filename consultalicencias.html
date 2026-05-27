@@ -1678,87 +1678,247 @@ function pdfDonutLegend(doc,{x,y,w,title,data,total,colors}){
 
 function genPDFReporteFacilidadesAvanzado(){
   if(!DB){alert('Primero espera a que cargue la base de datos.');return;}
-  const rows=advGetFilteredRows().slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')||a.anio.localeCompare(b.anio)||a.mesIndex-b.mesIndex||a.dia.localeCompare(b.dia,'es'));
+
+  const rows=advGetFilteredRows().slice().sort((a,b)=>
+    a.nombre.localeCompare(b.nombre,'es') ||
+    a.anio.localeCompare(b.anio) ||
+    a.mesIndex-b.mesIndex ||
+    a.dia.localeCompare(b.dia,'es')
+  );
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('landscape');
+
   const total=rows.length;
   const personas=new Set(rows.map(r=>r.rfc)).size;
   const servicios=new Set(rows.map(r=>r.servicio)).size;
   const turnosCount=new Set(rows.map(r=>r.turno)).size;
   const promedio=personas?(total/personas).toFixed(1):'0';
+
   const porServicio=advCountMap(rows,r=>r.servicio);
   const porTurno=advCountMap(rows,r=>r.turno);
   const porMes=advCountMap(rows,r=>`${r.mes} ${r.anio}`);
   const porPersona=advCountMap(rows,r=>`${r.rfc} — ${r.nombre}`);
+
   const topServicio=porServicio[0]||['—',0];
   const topPersona=porPersona[0]||['—',0];
   const generated = new Date().toLocaleString('es-MX');
 
-  doc.setFillColor(13,17,23); doc.rect(0,0,297,34,'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(18); doc.text('Reporte Avanzado de Facilidades Administrativas',14,15);
+  // =====================================================
+  // PÁGINA 1: DASHBOARD VISUAL
+  // =====================================================
+
+  doc.setFillColor(13,17,23);
+  doc.rect(0,0,297,34,'F');
+
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(18);
+  doc.text('Reporte Avanzado de Facilidades Administrativas',14,15);
+
   doc.setFontSize(8);
-  pdfWrapText(doc,`Filtros aplicados: ${advFilterText()}`,14,23,200,3.6);
-  doc.setTextColor(170,180,195); doc.text(`Generado: ${generated}`,282,15,{align:'right'});
+  pdfWrapText(doc,`Filtros aplicados: ${advFilterText()}`,14,23,205,3.6);
 
-  pdfStatCard(doc,14,40,50,26,'FACILIDADES OTORGADAS',String(total),'Eventos reales filtrados',[168,85,247]);
-  pdfStatCard(doc,68,40,50,26,'PERSONAS',String(personas),'RFC únicos con al menos una facilidad',[14,165,233]);
-  pdfStatCard(doc,122,40,50,26,'ÁREAS',String(servicios),'Servicios distintos involucrados',[0,217,163]);
-  pdfStatCard(doc,176,40,50,26,'TURNOS',String(turnosCount),'Turnos presentes en el filtro',[245,158,11]);
-  pdfStatCard(doc,230,40,52,26,'PROMEDIO',String(promedio),`Top área: ${topServicio[0]}`,[236,72,153]);
+  doc.setTextColor(170,180,195);
+  doc.text(`Generado: ${generated}`,282,15,{align:'right'});
 
-  pdfSectionTitle(doc,'Resumen visual','Distribución y concentración de facilidades',14,72,268);
-  pdfHBarChart(doc,{x:14,y:85,w:132,title:'Top áreas / servicios',data:porServicio,total,accent:[168,85,247],limit:6,labelWidth:48,rowH:9});
-  pdfHBarChart(doc,{x:150,y:85,w:132,title:'Top personas con más facilidades',data:porPersona,total,accent:[14,165,233],limit:6,labelWidth:60,rowH:9});
-  pdfVBarChart(doc,{x:14,y:152,w:132,title:'Comportamiento por mes',data:porMes,total,accent:[0,217,163],limit:8});
-  pdfDonutLegend(doc,{x:150,y:152,w:63,title:'Turnos',data:porTurno,total,colors:[[14,165,233],[245,158,11],[168,85,247],[0,217,163],[236,72,153]]});
-  pdfDonutLegend(doc,{x:219,y:152,w:63,title:'KPIs clave',data:[
-    ['Top área',topServicio[1]||0],
-    ['Top persona',topPersona[1]||0],
-    ['Resto de eventos',Math.max(0,total-((topServicio[1]||0)+(topPersona[1]||0)))]
-  ],total:Math.max(total,1),colors:[[168,85,247],[14,165,233],[210,214,220]]});
+  // Tarjetas KPI con más aire
+  pdfStatCard(doc,14,42,50,25,'FACILIDADES',String(total),'Eventos reales filtrados',[168,85,247]);
+  pdfStatCard(doc,68,42,50,25,'PERSONAS',String(personas),'RFC únicos',[14,165,233]);
+  pdfStatCard(doc,122,42,50,25,'ÁREAS',String(servicios),'Servicios distintos',[0,217,163]);
+  pdfStatCard(doc,176,42,50,25,'TURNOS',String(turnosCount),'Turnos encontrados',[245,158,11]);
+  pdfStatCard(doc,230,42,52,25,'PROMEDIO',String(promedio),'Facilidades/persona',[236,72,153]);
 
-  doc.setTextColor(90,100,110); doc.setFontSize(8);
-  doc.text('Lectura rápida:',14,205);
-  doc.text(`• Área con mayor carga: ${topServicio[0]} (${advPct(topServicio[1],total).toFixed(1)}%).`,48,205);
-  doc.text(`• Persona con más eventos: ${topPersona[0]} (${topPersona[1]}).`,160,205);
+  pdfSectionTitle(doc,'Resumen visual','Distribución general del periodo filtrado',14,75,268);
+
+  // Dos gráficas grandes arriba
+  pdfHBarChart(doc,{
+    x:14,y:90,w:128,
+    title:'Top áreas / servicios',
+    data:porServicio,total,
+    accent:[168,85,247],
+    limit:6,
+    labelWidth:55,
+    rowH:10
+  });
+
+  pdfHBarChart(doc,{
+    x:154,y:90,w:128,
+    title:'Top personas con más facilidades',
+    data:porPersona,total,
+    accent:[14,165,233],
+    limit:6,
+    labelWidth:72,
+    rowH:10
+  });
+
+  // Abajo, gráficas más anchas para evitar texto pegado
+  pdfHBarChart(doc,{
+    x:14,y:162,w:128,
+    title:'Distribución por turno',
+    data:porTurno,total,
+    accent:[245,158,11],
+    limit:8,
+    labelWidth:42,
+    rowH:9
+  });
+
+  pdfVBarChart(doc,{
+    x:154,y:162,w:128,
+    title:'Comportamiento por mes',
+    data:porMes,total,
+    accent:[0,217,163],
+    limit:10
+  });
+
+  // Lectura rápida separada del footer
+  doc.setFillColor(245,246,250);
+  doc.roundedRect(14,216,268,17,3,3,'F');
+  doc.setTextColor(60,65,75);
+  doc.setFontSize(8);
+  doc.text('Lectura rápida',18,222);
+  doc.setFontSize(7);
+  doc.text(`Área con mayor carga: ${topServicio[0]} (${advPct(topServicio[1],total).toFixed(1)}%).`,18,228);
+  doc.text(`Persona con más eventos: ${topPersona[0]} (${topPersona[1]}).`,150,228,{maxWidth:126});
+
+  // =====================================================
+  // PÁGINA 2: RESUMEN TABULAR MÁS ESPACIADO
+  // =====================================================
 
   doc.addPage('landscape');
-  doc.setFillColor(13,17,23); doc.rect(0,0,297,24,'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(16); doc.text('Resumen tabular',14,14);
-  doc.setFontSize(8); doc.text(`Filtros: ${advFilterText()}`,14,20);
+  doc.setFillColor(13,17,23);
+  doc.rect(0,0,297,24,'F');
+
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(16);
+  doc.text('Resumen tabular',14,14);
+
+  doc.setFontSize(8);
+  doc.text(`Filtros: ${advFilterText()}`,14,20);
+
   doc.setTextColor(0,0,0);
+
   if(!rows.length){
-    doc.setFontSize(12); doc.text('No hay resultados con los filtros seleccionados.',14,40);
+    doc.setFontSize(12);
+    doc.text('No hay resultados con los filtros seleccionados.',14,40);
   } else {
-    doc.autoTable({startY:32,margin:{left:14},tableWidth:84,head:[['Área / servicio','Total','%']],body:porServicio.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:7,overflow:'linebreak'},headStyles:{fillColor:[168,85,247]}});
-    doc.autoTable({startY:32,margin:{left:106},tableWidth:52,head:[['Turno','Total','%']],body:porTurno.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:7},headStyles:{fillColor:[14,165,233]}});
-    doc.autoTable({startY:32,margin:{left:166},tableWidth:54,head:[['Mes','Total','%']],body:porMes.slice(0,12).map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:7},headStyles:{fillColor:[0,217,163]}});
-    doc.autoTable({startY:32,margin:{left:228},tableWidth:54,head:[['Top personas','Total','%']],body:porPersona.slice(0,10).map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:6,overflow:'linebreak'},headStyles:{fillColor:[245,158,11]}});
+    // Área grande a la izquierda
+    doc.autoTable({
+      startY:32,
+      margin:{left:14},
+      tableWidth:128,
+      head:[['Área / servicio','Total','%']],
+      body:porServicio.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),
+      styles:{fontSize:7,overflow:'linebreak',cellPadding:2},
+      columnStyles:{0:{cellWidth:88},1:{cellWidth:18,halign:'center'},2:{cellWidth:22,halign:'center'}},
+      headStyles:{fillColor:[168,85,247]}
+    });
+
+    // Turnos arriba derecha
+    doc.autoTable({
+      startY:32,
+      margin:{left:154},
+      tableWidth:58,
+      head:[['Turno','Total','%']],
+      body:porTurno.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),
+      styles:{fontSize:7,cellPadding:2},
+      columnStyles:{0:{cellWidth:30},1:{cellWidth:12,halign:'center'},2:{cellWidth:16,halign:'center'}},
+      headStyles:{fillColor:[14,165,233]}
+    });
+
+    // Mes arriba derecha
+    doc.autoTable({
+      startY:32,
+      margin:{left:224},
+      tableWidth:58,
+      head:[['Mes','Total','%']],
+      body:porMes.slice(0,12).map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),
+      styles:{fontSize:7,cellPadding:2},
+      columnStyles:{0:{cellWidth:30},1:{cellWidth:12,halign:'center'},2:{cellWidth:16,halign:'center'}},
+      headStyles:{fillColor:[0,217,163]}
+    });
+
+    // Top personas en tabla completa abajo, ya no angosta
+    const bottomY = Math.max(doc.lastAutoTable.finalY + 10, 96);
+    doc.setFontSize(12);
+    doc.setTextColor(35,40,50);
+    doc.text('Top personas con más facilidades',14,bottomY);
+
+    doc.autoTable({
+      startY:bottomY+5,
+      margin:{left:14},
+      tableWidth:268,
+      head:[['#','RFC','Nombre','Total','%']],
+      body:porPersona.slice(0,15).map(([k,v],i)=>{
+        const parts=String(k).split(' — ');
+        return [i+1,parts[0]||'—',parts.slice(1).join(' — ')||'—',v,`${advPct(v,total).toFixed(1)}%`];
+      }),
+      styles:{fontSize:7,overflow:'linebreak',cellPadding:2},
+      columnStyles:{
+        0:{cellWidth:10,halign:'center'},
+        1:{cellWidth:34},
+        2:{cellWidth:170},
+        3:{cellWidth:20,halign:'center'},
+        4:{cellWidth:20,halign:'center'}
+      },
+      headStyles:{fillColor:[245,158,11]}
+    });
   }
+
+  // =====================================================
+  // PÁGINAS 3+: DETALLE
+  // =====================================================
 
   if(rows.length){
     doc.addPage('landscape');
-    doc.setFillColor(13,17,23); doc.rect(0,0,297,24,'F');
-    doc.setTextColor(255,255,255); doc.setFontSize(16); doc.text('Detalle de eventos filtrados',14,14);
-    doc.setFontSize(8); doc.text(`Total de filas: ${rows.length}`,14,20);
+
+    doc.setFillColor(13,17,23);
+    doc.rect(0,0,297,24,'F');
+
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(16);
+    doc.text('Detalle de eventos filtrados',14,14);
+
+    doc.setFontSize(8);
+    doc.text(`Total de filas: ${rows.length}`,14,20);
+
     doc.setTextColor(0,0,0);
+
     doc.autoTable({
       startY:30,
       head:[['#','RFC','Nombre','Área','Turno','Entrada','Salida','Día','Mes','Año']],
       body:rows.map((r,i)=>[i+1,r.rfc,r.nombre,r.servicio,r.turno,r.entrada,r.salida,r.dia,r.mes,r.anio]),
       styles:{fontSize:6,overflow:'linebreak',cellPadding:1.6},
-      columnStyles:{0:{cellWidth:10},1:{cellWidth:24},2:{cellWidth:48},3:{cellWidth:47},4:{cellWidth:20},5:{cellWidth:18},6:{cellWidth:18},7:{cellWidth:28},8:{cellWidth:24},9:{cellWidth:16}},
-      headStyles:{fillColor:[168,85,247]}
+      columnStyles:{
+        0:{cellWidth:10},
+        1:{cellWidth:24},
+        2:{cellWidth:50},
+        3:{cellWidth:48},
+        4:{cellWidth:20},
+        5:{cellWidth:18},
+        6:{cellWidth:18},
+        7:{cellWidth:28},
+        8:{cellWidth:24},
+        9:{cellWidth:16}
+      },
+      headStyles:{fillColor:[168,85,247]},
+      margin:{bottom:14}
     });
   }
 
+  // =====================================================
+  // FOOTER MÁS ABAJO Y SIN ENCIMAR CONTENIDO
+  // =====================================================
+
   const pageCount=doc.internal.getNumberOfPages();
+
   for(let i=1;i<=pageCount;i++){
     doc.setPage(i);
-    doc.setFontSize(8); doc.setTextColor(120);
+    doc.setFontSize(7);
+    doc.setTextColor(120);
     doc.text(`Hospital de la Mujer · Generado: ${generated}`,14,205);
     doc.text(`Página ${i} de ${pageCount}`,282,205,{align:'right'});
   }
+
   doc.save(`REPORTE_VISUAL_FACILIDADES_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 
