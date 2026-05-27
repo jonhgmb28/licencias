@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE ht<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -500,54 +500,129 @@ function esc(s){
 
 loadData();
 
- async function genPDF(){
+  async function genPDF(){
+
   if(!cur || !DB[cur]) return;
+
   const p = DB[cur];
+
   const { jsPDF } = window.jspdf;
+
   const doc = new jsPDF();
 
-  let totalLic = 0, totalLCGS = 0, totalFac = 0;
-  const licencias = [], lcgs = [], facilidades = [];
+  // =====================================================
+  // VARIABLES
+  // =====================================================
+
+  let totalLic = 0;
+  let totalLCGS = 0;
+  let totalFac = 0;
+
+  const licencias = [];
+  const lcgs = [];
+  const facilidades = [];
+
+  // =====================================================
+  // RECORRER DATOS
+  // =====================================================
 
   Object.entries(p.fuentes).forEach(([src, sheets]) => {
+
     Object.entries(sheets).forEach(([sheet, recs]) => {
+
       recs.forEach(r => {
-        // 1. LICENCIAS MÉDICAS
+
+        // =================================================
+        // LICENCIAS MÉDICAS
+        // =================================================
+
         if(src.includes('Control')){
-          totalLic++;
-          const inicio = r['Inicio'] || r['INICIO'] || r['Fecha de Inicio'] || r['FECHA DE INICIO'] || '—';
-          const termino = r['Termino'] || r['TERMINO'] || r['Fecha de Termino'] || r['FECHA DE TERMINO'] || '—';
-          const dias = r['Días'] || r['DIAS'] || r['# DIAS'] || r['# Días'] || '—';
-          const diag = r['Diagnóstico'] || r['DIAGNOSTICO'] || r['Diagnostico'] || '—';
-          
-          licencias.push([diag, fmtDate(String(inicio)), fmtDate(String(termino)), dias]);
-        }
-        // 2. LCGS
+
+  totalLic++;
+
+  // FECHA INICIO
+  const inicio =
+    (r['D'] || '--') + '/' +
+    (r['M'] || '--') + '/' +
+    (r['A'] || '--');
+
+  // FECHA TERMINO
+  const termino =
+    (r['D_2'] || '--') + '/' +
+    (r['M_2'] || '--') + '/' +
+    (r['A'] || '--');
+
+  licencias.push([
+
+    r['DIAGNOSTICO'] ||
+    r['DIAGNOSTICO_2'] ||
+    '—',
+
+    inicio,
+
+    termino,
+
+    r['# DIAS'] ||
+    r['DIAS'] ||
+    '—'
+  ]);
+}
+
+        // =================================================
+        // LCGS
+        // =================================================
+
         else if(src.includes('LCGS')){
+
           totalLCGS++;
+
           lcgs.push([
-            r['CONSECUTIVO'] || r['Consecutivo'] || '—',
-            r['NO. DÍAS'] || r['Días'] || '—',
-            fmtDate(String(r['FECHA DE INICIO'] || r['Inicio'] || '—')),
-            fmtDate(String(r['FECHA DE TERMINO'] || r['Termino'] || '—')),
-            r['TURNO'] || '—'
+
+            r['CONSECUTIVO'] ||
+            r['Consecutivo'] ||
+            '—',
+
+            r['NO. DÍAS'] ||
+            r['No. Días'] ||
+            '—',
+
+            r['FECHA DE INICIO'] ||
+            r['Fecha de Inicio'] ||
+            '—',
+
+            r['FECHA DE TERMINO'] ||
+            r['Fecha de Termino'] ||
+            '—',
+
+            r['TURNO'] ||
+            '—'
           ]);
         }
-        // 3. FACILIDADES (Incluye fecha ahora)
+
+        // =================================================
+        // FACILIDADES
+        // =================================================
+
         else if(src.includes('Facilidad')){
+
           totalFac++;
-          // Buscamos la fecha en la clave de la facilidad o el campo fecha si existe
-          const fecha = r['FECHA'] || r['Fecha'] || '—';
+
           facilidades.push([
-            fmtDate(String(fecha)), // Nueva columna fecha
+
             r['SERVICIO'] || '—',
+
             r['TURNO'] || '—',
-            fmtTime(String(r['ENTRADA'] || '—')),
-            fmtTime(String(r['SALIDA'] || '—'))
+
+            fmtTime(r['ENTRADA'] || '—'),
+
+            fmtTime(r['SALIDA'] || '—')
           ]);
         }
+
       });
+
     });
+
   });
 
   // =====================================================
