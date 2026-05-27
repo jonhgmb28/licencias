@@ -1590,50 +1590,178 @@ function advFilterText(){
   const q=document.getElementById('advQ')?.value.trim(); if(q) txt.push(`Búsqueda: ${q}`);
   return txt.length?txt.join(' · '):'Todos los registros';
 }
+function pdfWrapText(doc,text,x,y,maxWidth,lineHeight=4){
+  const lines=doc.splitTextToSize(String(text||''),maxWidth);
+  doc.text(lines,x,y);
+  return y + (lines.length*lineHeight);
+}
+function pdfStatCard(doc,x,y,w,h,title,value,sub,accent){
+  doc.setFillColor(24,28,36); doc.roundedRect(x,y,w,h,3,3,'F');
+  doc.setFillColor(accent[0],accent[1],accent[2]); doc.roundedRect(x,y,3,h,2,2,'F');
+  doc.setTextColor(150,160,175); doc.setFontSize(8); doc.text(String(title||''),x+7,y+7);
+  doc.setTextColor(accent[0],accent[1],accent[2]); doc.setFontSize(18); doc.text(String(value||'0'),x+7,y+17);
+  doc.setTextColor(120,128,140); doc.setFontSize(7); pdfWrapText(doc,sub||'',x+7,y+23,w-10,3.2);
+}
+function pdfSectionTitle(doc,title,subtitle,x,y,w){
+  doc.setFillColor(245,246,250); doc.roundedRect(x,y,w,10,2,2,'F');
+  doc.setTextColor(30,35,45); doc.setFontSize(12); doc.text(title,x+4,y+6.5);
+  if(subtitle){ doc.setTextColor(120,128,140); doc.setFontSize(7); doc.text(subtitle,x+w-4,y+6.5,{align:'right'}); }
+}
+function pdfHBarChart(doc,{x,y,w,title,data,total,accent=[168,85,247],limit=6,labelWidth=48,rowH=10}){
+  const items=(data||[]).slice(0,limit);
+  const chartH=Math.max(24, items.length*rowH+10);
+  doc.setFillColor(255,255,255); doc.roundedRect(x,y,w,chartH,3,3,'F');
+  doc.setDrawColor(228,232,238); doc.roundedRect(x,y,w,chartH,3,3,'S');
+  doc.setTextColor(40,45,55); doc.setFontSize(10); doc.text(title,x+4,y+6);
+  if(!items.length){ doc.setTextColor(150,160,175); doc.setFontSize(8); doc.text('Sin datos',x+4,y+15); return y+chartH; }
+  const max=Math.max(...items.map(i=>i[1]),1);
+  let cy=y+12;
+  items.forEach(([name,val])=>{
+    const pct=total?((val/total)*100):0;
+    const truncated = String(name).length>26 ? String(name).slice(0,25)+'…' : String(name);
+    doc.setTextColor(85,95,110); doc.setFontSize(7); doc.text(truncated,x+4,cy+3);
+    const bx=x+labelWidth, bw=w-labelWidth-22;
+    doc.setFillColor(238,241,246); doc.roundedRect(bx,cy,bw,4,2,2,'F');
+    doc.setFillColor(accent[0],accent[1],accent[2]); doc.roundedRect(bx,cy,Math.max(2,(val/max)*bw),4,2,2,'F');
+    doc.setTextColor(70,75,85); doc.setFontSize(7); doc.text(`${val} · ${pct.toFixed(1)}%`,x+w-4,cy+3,{align:'right'});
+    cy+=rowH;
+  });
+  return y+chartH;
+}
+function pdfVBarChart(doc,{x,y,w,title,data,total,accent=[14,165,233],limit=8}){
+  const items=(data||[]).slice(0,limit);
+  const h=58;
+  doc.setFillColor(255,255,255); doc.roundedRect(x,y,w,h,3,3,'F');
+  doc.setDrawColor(228,232,238); doc.roundedRect(x,y,w,h,3,3,'S');
+  doc.setTextColor(40,45,55); doc.setFontSize(10); doc.text(title,x+4,y+6);
+  if(!items.length){ doc.setTextColor(150,160,175); doc.setFontSize(8); doc.text('Sin datos',x+4,y+15); return y+h; }
+  const max=Math.max(...items.map(i=>i[1]),1);
+  const baseY=y+h-10;
+  const left=x+8;
+  const chartW=w-14;
+  const gap=3;
+  const bw=Math.max(6,(chartW - gap*(items.length-1))/items.length);
+  items.forEach(([name,val],idx)=>{
+    const bh=((val/max)*28)+2;
+    const bx=left+idx*(bw+gap);
+    doc.setFillColor(accent[0],accent[1],accent[2]); doc.roundedRect(bx,baseY-bh,bw,bh,1,1,'F');
+    doc.setTextColor(70,75,85); doc.setFontSize(6); doc.text(String(val),bx+bw/2,baseY-bh-1,{align:'center'});
+    const short=String(name).split(' ')[0].slice(0,6);
+    doc.setTextColor(110,118,130); doc.text(short,bx+bw/2,baseY+4,{align:'center'});
+  });
+  return y+h;
+}
+function pdfDonutLegend(doc,{x,y,w,title,data,total,colors}){
+  const items=(data||[]).slice(0,5);
+  const h=58;
+  const cx=x+18, cy=y+28, r=13;
+  doc.setFillColor(255,255,255); doc.roundedRect(x,y,w,h,3,3,'F');
+  doc.setDrawColor(228,232,238); doc.roundedRect(x,y,w,h,3,3,'S');
+  doc.setTextColor(40,45,55); doc.setFontSize(10); doc.text(title,x+4,y+6);
+  if(!items.length){ doc.setTextColor(150,160,175); doc.setFontSize(8); doc.text('Sin datos',x+4,y+15); return y+h; }
+  doc.setDrawColor(235,238,243); doc.setFillColor(247,248,250); doc.circle(cx,cy,r,'FD');
+  doc.setFillColor(255,255,255); doc.circle(cx,cy,7,'F');
+  doc.setTextColor(80,85,95); doc.setFontSize(8); doc.text(String(total),cx,cy+1,{align:'center'});
+  let ly=y+14;
+  items.forEach(([name,val],idx)=>{
+    const c=colors[idx%colors.length];
+    const pct=total?((val/total)*100):0;
+    doc.setFillColor(c[0],c[1],c[2]); doc.roundedRect(x+36,ly-2,4,4,1,1,'F');
+    doc.setTextColor(75,85,95); doc.setFontSize(7);
+    const label=String(name).length>18?String(name).slice(0,17)+'…':String(name);
+    doc.text(label,x+43,ly+1);
+    doc.text(`${val} · ${pct.toFixed(1)}%`,x+w-4,ly+1,{align:'right'});
+    ly+=8;
+  });
+  return y+h;
+}
+
 function genPDFReporteFacilidadesAvanzado(){
   if(!DB){alert('Primero espera a que cargue la base de datos.');return;}
-  const rows=advGetFilteredRows();
+  const rows=advGetFilteredRows().slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')||a.anio.localeCompare(b.anio)||a.mesIndex-b.mesIndex||a.dia.localeCompare(b.dia,'es'));
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('landscape');
   const total=rows.length;
   const personas=new Set(rows.map(r=>r.rfc)).size;
   const servicios=new Set(rows.map(r=>r.servicio)).size;
+  const turnosCount=new Set(rows.map(r=>r.turno)).size;
+  const promedio=personas?(total/personas).toFixed(1):'0';
   const porServicio=advCountMap(rows,r=>r.servicio);
   const porTurno=advCountMap(rows,r=>r.turno);
   const porMes=advCountMap(rows,r=>`${r.mes} ${r.anio}`);
   const porPersona=advCountMap(rows,r=>`${r.rfc} — ${r.nombre}`);
   const topServicio=porServicio[0]||['—',0];
+  const topPersona=porPersona[0]||['—',0];
+  const generated = new Date().toLocaleString('es-MX');
 
-  doc.setFillColor(13,17,23); doc.rect(0,0,297,32,'F');
+  doc.setFillColor(13,17,23); doc.rect(0,0,297,34,'F');
   doc.setTextColor(255,255,255); doc.setFontSize(18); doc.text('Reporte Avanzado de Facilidades Administrativas',14,15);
-  doc.setFontSize(9); doc.text(`Filtros: ${advFilterText()}`,14,23);
+  doc.setFontSize(8);
+  pdfWrapText(doc,`Filtros aplicados: ${advFilterText()}`,14,23,200,3.6);
+  doc.setTextColor(170,180,195); doc.text(`Generado: ${generated}`,282,15,{align:'right'});
+
+  pdfStatCard(doc,14,40,50,26,'FACILIDADES OTORGADAS',String(total),'Eventos reales filtrados',[168,85,247]);
+  pdfStatCard(doc,68,40,50,26,'PERSONAS',String(personas),'RFC únicos con al menos una facilidad',[14,165,233]);
+  pdfStatCard(doc,122,40,50,26,'ÁREAS',String(servicios),'Servicios distintos involucrados',[0,217,163]);
+  pdfStatCard(doc,176,40,50,26,'TURNOS',String(turnosCount),'Turnos presentes en el filtro',[245,158,11]);
+  pdfStatCard(doc,230,40,52,26,'PROMEDIO',String(promedio),`Top área: ${topServicio[0]}`,[236,72,153]);
+
+  pdfSectionTitle(doc,'Resumen visual','Distribución y concentración de facilidades',14,72,268);
+  pdfHBarChart(doc,{x:14,y:85,w:132,title:'Top áreas / servicios',data:porServicio,total,accent:[168,85,247],limit:6,labelWidth:48,rowH:9});
+  pdfHBarChart(doc,{x:150,y:85,w:132,title:'Top personas con más facilidades',data:porPersona,total,accent:[14,165,233],limit:6,labelWidth:60,rowH:9});
+  pdfVBarChart(doc,{x:14,y:152,w:132,title:'Comportamiento por mes',data:porMes,total,accent:[0,217,163],limit:8});
+  pdfDonutLegend(doc,{x:150,y:152,w:63,title:'Turnos',data:porTurno,total,colors:[[14,165,233],[245,158,11],[168,85,247],[0,217,163],[236,72,153]]});
+  pdfDonutLegend(doc,{x:219,y:152,w:63,title:'KPIs clave',data:[
+    ['Top área',topServicio[1]||0],
+    ['Top persona',topPersona[1]||0],
+    ['Resto de eventos',Math.max(0,total-((topServicio[1]||0)+(topPersona[1]||0)))]
+  ],total:Math.max(total,1),colors:[[168,85,247],[14,165,233],[210,214,220]]});
+
+  doc.setTextColor(90,100,110); doc.setFontSize(8);
+  doc.text('Lectura rápida:',14,205);
+  doc.text(`• Área con mayor carga: ${topServicio[0]} (${advPct(topServicio[1],total).toFixed(1)}%).`,48,205);
+  doc.text(`• Persona con más eventos: ${topPersona[0]} (${topPersona[1]}).`,160,205);
+
+  doc.addPage('landscape');
+  doc.setFillColor(13,17,23); doc.rect(0,0,297,24,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(16); doc.text('Resumen tabular',14,14);
+  doc.setFontSize(8); doc.text(`Filtros: ${advFilterText()}`,14,20);
   doc.setTextColor(0,0,0);
-  let y=42;
-  doc.setFillColor(245,245,245); doc.roundedRect(14,y,268,25,3,3,'F');
-  doc.setFontSize(11);
-  doc.text(`Facilidades otorgadas: ${total}`,20,y+10);
-  doc.text(`Personas con facilidad: ${personas}`,20,y+18);
-  doc.text(`Áreas involucradas: ${servicios}`,95,y+10);
-  doc.text(`Promedio por persona: ${personas?(total/personas).toFixed(1):'0'}`,95,y+18);
-  doc.text(`Área con mayor carga: ${topServicio[0]} (${advPct(topServicio[1],total).toFixed(1)}%)`,175,y+10,{maxWidth:95});
-  y+=36;
-  if(!rows.length){doc.setFontSize(12);doc.text('No hay resultados con los filtros seleccionados.',14,y);} else {
-    doc.setFontSize(12); doc.text('Porcentaje por área / servicio',14,y); y+=4;
-    doc.autoTable({startY:y,head:[['Área / servicio','Total','Porcentaje']],body:porServicio.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:7,overflow:'linebreak'},columnStyles:{0:{cellWidth:120},1:{halign:'center'},2:{halign:'center'}},headStyles:{fillColor:[168,85,247]}});
-    y=doc.lastAutoTable.finalY+8;
-    doc.autoTable({startY:y,head:[['Turno','Total','%'],['Mes','Total','%'],['Persona','Total','%']],body:[],theme:'plain',styles:{fontSize:1}}); // separador invisible
-    const tableY=y;
-    doc.autoTable({startY:tableY,margin:{left:14},tableWidth:82,head:[['Turno','Total','%']],body:porTurno.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:7},headStyles:{fillColor:[14,165,233]}});
-    doc.autoTable({startY:tableY,margin:{left:104},tableWidth:82,head:[['Mes','Total','%']],body:porMes.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:7},headStyles:{fillColor:[14,165,233]}});
-    doc.autoTable({startY:tableY,margin:{left:194},tableWidth:88,head:[['Top personas','Total','%']],body:porPersona.slice(0,10).map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:6,overflow:'linebreak'},headStyles:{fillColor:[14,165,233]}});
-    y=Math.max(doc.lastAutoTable.finalY+10, tableY+55);
-    doc.setFontSize(12); doc.text('Detalle filtrado',14,y); y+=4;
-    doc.autoTable({startY:y,head:[['#','RFC','Nombre','Área','Turno','Entrada','Salida','Día','Mes','Año']],body:rows.map((r,i)=>[i+1,r.rfc,r.nombre,r.servicio,r.turno,r.entrada,r.salida,r.dia,r.mes,r.anio]),styles:{fontSize:6,overflow:'linebreak'},columnStyles:{0:{cellWidth:10},1:{cellWidth:24},2:{cellWidth:45},3:{cellWidth:42},4:{cellWidth:20},5:{cellWidth:18},6:{cellWidth:18},7:{cellWidth:28},8:{cellWidth:24},9:{cellWidth:16}},headStyles:{fillColor:[168,85,247]}});
+  if(!rows.length){
+    doc.setFontSize(12); doc.text('No hay resultados con los filtros seleccionados.',14,40);
+  } else {
+    doc.autoTable({startY:32,margin:{left:14},tableWidth:84,head:[['Área / servicio','Total','%']],body:porServicio.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:7,overflow:'linebreak'},headStyles:{fillColor:[168,85,247]}});
+    doc.autoTable({startY:32,margin:{left:106},tableWidth:52,head:[['Turno','Total','%']],body:porTurno.map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:7},headStyles:{fillColor:[14,165,233]}});
+    doc.autoTable({startY:32,margin:{left:166},tableWidth:54,head:[['Mes','Total','%']],body:porMes.slice(0,12).map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:7},headStyles:{fillColor:[0,217,163]}});
+    doc.autoTable({startY:32,margin:{left:228},tableWidth:54,head:[['Top personas','Total','%']],body:porPersona.slice(0,10).map(([k,v])=>[k,v,`${advPct(v,total).toFixed(1)}%`]),styles:{fontSize:6,overflow:'linebreak'},headStyles:{fillColor:[245,158,11]}});
   }
+
+  if(rows.length){
+    doc.addPage('landscape');
+    doc.setFillColor(13,17,23); doc.rect(0,0,297,24,'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(16); doc.text('Detalle de eventos filtrados',14,14);
+    doc.setFontSize(8); doc.text(`Total de filas: ${rows.length}`,14,20);
+    doc.setTextColor(0,0,0);
+    doc.autoTable({
+      startY:30,
+      head:[['#','RFC','Nombre','Área','Turno','Entrada','Salida','Día','Mes','Año']],
+      body:rows.map((r,i)=>[i+1,r.rfc,r.nombre,r.servicio,r.turno,r.entrada,r.salida,r.dia,r.mes,r.anio]),
+      styles:{fontSize:6,overflow:'linebreak',cellPadding:1.6},
+      columnStyles:{0:{cellWidth:10},1:{cellWidth:24},2:{cellWidth:48},3:{cellWidth:47},4:{cellWidth:20},5:{cellWidth:18},6:{cellWidth:18},7:{cellWidth:28},8:{cellWidth:24},9:{cellWidth:16}},
+      headStyles:{fillColor:[168,85,247]}
+    });
+  }
+
   const pageCount=doc.internal.getNumberOfPages();
-  for(let i=1;i<=pageCount;i++){doc.setPage(i);doc.setFontSize(8);doc.setTextColor(120);doc.text(`Generado: ${new Date().toLocaleString('es-MX')}`,14,200);doc.text(`Página ${i} de ${pageCount}`,258,200);}
-  doc.save(`REPORTE_AVANZADO_FACILIDADES_${new Date().toISOString().slice(0,10)}.pdf`);
+  for(let i=1;i<=pageCount;i++){
+    doc.setPage(i);
+    doc.setFontSize(8); doc.setTextColor(120);
+    doc.text(`Hospital de la Mujer · Generado: ${generated}`,14,205);
+    doc.text(`Página ${i} de ${pageCount}`,282,205,{align:'right'});
+  }
+  doc.save(`REPORTE_VISUAL_FACILIDADES_${new Date().toISOString().slice(0,10)}.pdf`);
 }
+
 function exportCSVReporteFacilidades(){
   const rows=advGetFilteredRows();
   const headers=['RFC','Nombre','AreaServicio','Turno','Entrada','Salida','Dia','Mes','Anio'];
