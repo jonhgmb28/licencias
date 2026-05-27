@@ -587,6 +587,21 @@ loadData();
     return s.replace(/\\/g,'/').replace(/,\s*$/,'').trim();
   }
 
+  function hasRealData(values){
+    return values.some(v => {
+      const s = String(v ?? '').trim();
+      return s && s !== '—' && s !== '--/--/--' && s !== '././.' && s !== 'undefined/undefined/undefined';
+    });
+  }
+
+  function hasValidLicencia(row, diagnostico, inicio, termino, dias){
+    // Evita contar renglones vacíos o de relleno del Excel.
+    // Se considera licencia real si tiene diagnóstico, días o una fecha armada.
+    return hasRealData([diagnostico, dias]) ||
+      /\d/.test(String(inicio || '')) ||
+      /\d/.test(String(termino || ''));
+  }
+
   function diasFacilidad(row){
     const meses = [
       'ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO',
@@ -655,8 +670,6 @@ loadData();
 
         if(isLicMed(src)){
 
-          totalLic++;
-
           const diagnostico = firstVal(r, [
             ['DIAGNOSTICO','DIAGNÓSTICO','DIAGNOSTICO_2','DIAGNÓSTICO_2'],
             'DIAGNOSTICO'
@@ -670,12 +683,14 @@ loadData();
           const inicio = fechaLicencia(r, '');
           const termino = fechaLicencia(r, '_2');
 
-          licencias.push([
-            diagnostico,
-            inicio,
-            termino,
-            dias
-          ]);
+          if(hasValidLicencia(r, diagnostico, inicio, termino, dias)){
+            licencias.push([
+              diagnostico,
+              inicio,
+              termino,
+              dias
+            ]);
+          }
         }
 
         // =================================================
@@ -684,9 +699,7 @@ loadData();
 
         else if(isLCGS(src)){
 
-          totalLCGS++;
-
-          lcgs.push([
+          const rowLCGS = [
 
             firstVal(r, [
               ['CONSECUTIVO','NO.','NUMERO','NÚMERO']
@@ -708,7 +721,11 @@ loadData();
               ['TURNO','TURNO ','JORNADA'],
               'TURNO'
             ])
-          ]);
+          ];
+
+          if(hasRealData(rowLCGS)){
+            lcgs.push(rowLCGS);
+          }
         }
 
         // =================================================
@@ -717,9 +734,7 @@ loadData();
 
         else if(isFac(src)){
 
-          totalFac++;
-
-          facilidades.push([
+          const rowFacilidad = [
 
             firstVal(r, [
               ['SERVICIO','ÁREA','AREA']
@@ -739,7 +754,11 @@ loadData();
             ])),
 
             diasFacilidad(r)
-          ]);
+          ];
+
+          if(hasRealData(rowFacilidad)){
+            facilidades.push(rowFacilidad);
+          }
         }
 
       });
@@ -747,6 +766,12 @@ loadData();
     });
 
   });
+
+  // Los totales deben salir de los arreglos ya filtrados,
+  // para que coincidan exactamente con lo que se imprime abajo.
+  totalLic = licencias.length;
+  totalLCGS = lcgs.length;
+  totalFac = facilidades.length;
 
   // =====================================================
   // HEADER
