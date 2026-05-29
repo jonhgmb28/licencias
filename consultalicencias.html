@@ -2515,6 +2515,142 @@ function genPDFReporteFacilidadesAvanzado(){
   pxFooter(doc,generated);doc.save(`REPORTE_VISUAL_FACILIDADES_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 
+
+
+// =====================================================
+// OVERRIDES V2 - REPORTE DE PERSONA SIN SOBREPOSICIONES
+// - Tarjeta visible en ficha y detalle de facilidades
+// - Días corregidos en Licencias Médicas y LCGS
+// - Encabezado en páginas continuadas de tablas largas
+// - Anchos y fuentes ajustados para evitar cortes
+// =====================================================
+function pxFieldAny(row, exactNames=[], containsWords=[]){
+  const exact=(exactNames||[]).map(pxNorm);
+  for(const [k,v] of Object.entries(row||{})){
+    if(v===null||v===undefined||String(v).trim()==='') continue;
+    if(exact.includes(pxNorm(k))) return String(v).trim();
+  }
+  const words=(containsWords||[]).map(pxNorm);
+  if(words.length){
+    for(const [k,v] of Object.entries(row||{})){
+      if(v===null||v===undefined||String(v).trim()==='') continue;
+      const nk=pxNorm(k);
+      if(words.every(w=>nk.includes(w))) return String(v).trim();
+    }
+  }
+  return '';
+}
+function pxGuessTarjeta(row){
+  return pxFieldAny(row,[
+    'TARJETA','NO TARJETA','NO. TARJETA','N° TARJETA','NUMERO DE TARJETA','NÚMERO DE TARJETA',
+    'TARJETA DE ASISTENCIA','NUM TARJETA','NOMINA','NÓMINA','NO NOMINA','NO. NOMINA'
+  ],['TARJETA']) || '—';
+}
+function pxGuessDias(row){
+  const exact=pxFieldAny(row,[
+    '# DIAS','# DÍAS','NO DIAS','NO DÍAS','NO. DIAS','NO. DÍAS','N° DIAS','N° DÍAS',
+    'NUMERO DE DIAS','NÚMERO DE DÍAS','DIAS','DÍAS','TOTAL DIAS','TOTAL DÍAS','DURACION','DURACIÓN'
+  ]);
+  if(exact) return exact;
+  for(const [k,v] of Object.entries(row||{})){
+    if(v===null||v===undefined||String(v).trim()==='') continue;
+    const nk=pxNorm(k);
+    if(nk.includes('DIAGNOST')) continue;
+    if(nk.includes('FECHA')) continue;
+    if(nk==='D' || nk==='D_2') continue;
+    if(nk.includes('DIA') || nk.includes('DIAS') || nk.includes('DURACION')){
+      const s=String(v).trim();
+      if(s) return s;
+    }
+  }
+  return '—';
+}
+function pxFindPersonTarjeta(persona){
+  for(const sheets of Object.values(persona.fuentes||{})){
+    for(const recs of Object.values(sheets||{})){
+      for(const row of (recs||[])){
+        const t=pxGuessTarjeta(row);
+        if(t && t!=='—') return t;
+      }
+    }
+  }
+  return '—';
+}
+function pxPersonCardV2(doc,y,p,tarjeta){
+  pxFill(doc,PDFX.white);pxDraw(doc,PDFX.border);doc.roundedRect(14,y,182,36,4,4,'FD');
+  pxFill(doc,PDFX.navy);doc.roundedRect(18,y+8,18,18,3,3,'F');
+  pxText(doc,getIni(p.nombre||p.rfc),27,y+19,{size:8.5,style:'bold',color:PDFX.white,align:'center'});
+  pxText(doc,pxTrunc(doc,p.nombre||'SIN NOMBRE REGISTRADO',132),42,y+10,{size:11.2,style:'bold'});
+  pxText(doc,`RFC: ${p.rfc}`,42,y+17,{size:7.8,color:PDFX.muted});
+  pxText(doc,`Tarjeta: ${tarjeta || '—'}`,42,y+24,{size:7.8,style:'bold',color:PDFX.navy});
+  pxText(doc,'Reporte individual de licencias, LCGS y facilidades administrativas',42,y+31,{size:6.8,color:PDFX.light});
+  return y+44;
+}
+function pxTableSafe(doc,startY,head,body,opt={}){
+  if(!body||!body.length)return startY;
+  const firstPage=doc.internal.getCurrentPageInfo().pageNumber;
+  const pageTitle=opt.pageTitle||'Reporte Integral de Licencias';
+  const pageSubtitle=opt.pageSubtitle||'Continuación';
+  const generated=opt.generated||'';
+  const margin=Object.assign({left:14,right:14,bottom:18,top:38},opt.margin||{});
+  doc.autoTable({
+    startY,head:[head],body,theme:'grid',margin,tableWidth:opt.tableWidth||'auto',
+    styles:{font:'helvetica',fontSize:opt.fontSize||6.7,cellPadding:opt.cellPadding||2,overflow:'linebreak',valign:'middle',textColor:PDFX.text,lineColor:PDFX.border,lineWidth:.12,minCellHeight:5},
+    headStyles:{fillColor:opt.headColor||PDFX.navy,textColor:[255,255,255],fontStyle:'bold',halign:'center',valign:'middle'},
+    alternateRowStyles:{fillColor:[249,251,253]},
+    columnStyles:opt.columnStyles||{},
+    didDrawPage:function(){
+      const current=doc.internal.getCurrentPageInfo().pageNumber;
+      if(current!==firstPage){pxHeader(doc,pageTitle,pageSubtitle,generated);}
+    }
+  });
+  return doc.lastAutoTable.finalY+10;
+}
+
+async function genPDF(){
+  if(!cur||!DB[cur])return;
+  const p=DB[cur], {jsPDF}=window.jspdf, doc=new jsPDF('portrait','mm','a4'), generated=new Date().toLocaleString('es-MX');
+  const licencias=[],lcgs=[],facilidades=[];
+  const tarjetaPersona=pxFindPersonTarjeta(p);
+
+  Object.entries(p.fuentes||{}).forEach(([src,sheets])=>Object.values(sheets||{}).forEach(recs=>(recs||[]).forEach(r=>{
+    const ns=pxNorm(src);
+    if((ns.includes('CONTROL')||ns.includes('LICENCIA'))&&!ns.includes('LCGS')&&!ns.includes('GOCE')&&!ns.includes('FACILIDAD')){
+      const diagnostico=pxFirstVal(r,[['DIAGNOSTICO','DIAGNÓSTICO','DIAGNOSTICO_2','DIAGNÓSTICO_2'],'DIAGNOSTICO']);
+      const dias=pxGuessDias(r);
+      const d=pxValNames(r,['D']),m=pxValNames(r,['M']),a=pxValNames(r,['A']);
+      const d2=pxValNames(r,['D_2']),m2=pxValNames(r,['M_2']),a2=pxValNames(r,['A_2'])||a;
+      const inicio=(d||m||a)?`${d||'--'}/${m||'--'}/${a||'--'}`:pxOutDate(pxFirstVal(r,[['FECHA'],['FECHA DE INICIO'],['INICIO']]));
+      const termino=(d2||m2||a2)?`${d2||'--'}/${m2||'--'}/${a2||'--'}`:pxOutDate(pxFirstVal(r,[['FECHA_2'],['FECHA DE TERMINO'],['FECHA TERMINO'],['TERMINO'],['TÉRMINO']]));
+      if(pxReal([diagnostico,dias])||/\d/.test(String(inicio))||/\d/.test(String(termino)))licencias.push([diagnostico,inicio,termino,dias]);
+    }else if(ns.includes('LCGS')||ns.includes('GOCE')){
+      const row=[
+        pxFirstVal(r,[['CONSECUTIVO','NO.','NUMERO','NÚMERO','FOLIO']]),
+        pxGuessDias(r),
+        pxOutDate(pxFirstVal(r,[['FECHA DE INICIO','FECHA INICIO','INICIO']])),
+        pxOutDate(pxFirstVal(r,[['FECHA DE TERMINO','FECHA DE TÉRMINO','FECHA TERMINO','FECHA TÉRMINO','TERMINO','TÉRMINO']])),
+        pxFirstVal(r,[['TURNO','TURNO ','JORNADA'],'TURNO'])
+      ];
+      if(pxReal(row))lcgs.push(row);
+    }else if(ns.includes('FACILIDAD')){
+      const tarjeta=pxGuessTarjeta(r), servicio=pxFirstVal(r,[['SERVICIO','ÁREA','AREA']]),turno=pxFirstVal(r,[['TURNO','TURNO ','JORNADA'],'TURNO']),entrada=pxOutTime(pxFirstVal(r,[['ENTRADA','HORA ENTRADA']])),salida=pxOutTime(pxFirstVal(r,[['SALIDA','HORA SALIDA']])),dias=pxFacDias(r);
+      if(dias.length)dias.forEach(dia=>facilidades.push([tarjeta,servicio,turno,entrada,salida,dia]));else if(pxReal([servicio,turno,entrada,salida]))facilidades.push([tarjeta,servicio,turno,entrada,salida,'—']);
+    }
+  })));
+
+  const total=licencias.length+lcgs.length+facilidades.length;
+  pxHeader(doc,'Reporte Integral de Licencias','Hospital de la Mujer · Control administrativo individual',generated);
+  let y=40;y=pxPersonCardV2(doc,y,p,tarjetaPersona);
+  pxKpi(doc,14,y,42,'LICENCIAS',licencias.length,'Médicas',PDFX.navy);pxKpi(doc,61,y,42,'LCGS',lcgs.length,'Goce sueldo',PDFX.teal);pxKpi(doc,108,y,42,'FACILIDADES',facilidades.length,'Administrativas',PDFX.amber);pxKpi(doc,155,y,41,'TOTAL',total,'Registros',PDFX.slate);y+=34;
+  pxFill(doc,PDFX.soft);pxDraw(doc,PDFX.border);doc.roundedRect(14,y,182,18,3,3,'FD');pxText(doc,'Resumen del reporte',18,y+6,{size:8,style:'bold'});pxText(doc,'Los registros se separan por color. Las tablas largas continúan con encabezado para evitar sobreposición.',18,y+12,{size:6.8,color:PDFX.muted});y+=28;
+
+  if(licencias.length){y=pxEnsure(doc,y,48,generated,'Reporte Integral de Licencias','Continuación · Licencias Médicas');y=pxSection(doc,'Licencias Médicas',y,PDFX.navy);y=pxTableSafe(doc,y,['Diagnóstico','Inicio','Término','# días'],licencias,{generated,pageSubtitle:'Continuación · Licencias Médicas',fontSize:6.8,headColor:PDFX.navy,columnStyles:{0:{cellWidth:90},1:{cellWidth:32,halign:'center'},2:{cellWidth:32,halign:'center'},3:{cellWidth:22,halign:'center'}}});}
+  if(lcgs.length){y=pxEnsure(doc,y,48,generated,'Reporte Integral de Licencias','Continuación · LCGS');y=pxSection(doc,'Licencias con Goce de Sueldo',y,PDFX.teal);y=pxTableSafe(doc,y,['Consecutivo','# días','Inicio','Término','Turno'],lcgs,{generated,pageSubtitle:'Continuación · LCGS',fontSize:6.8,headColor:PDFX.teal,columnStyles:{0:{cellWidth:34,halign:'center'},1:{cellWidth:22,halign:'center'},2:{cellWidth:36,halign:'center'},3:{cellWidth:36,halign:'center'},4:{cellWidth:48}}});}
+  if(facilidades.length){y=pxEnsure(doc,y,48,generated,'Reporte Integral de Licencias','Continuación · Facilidades Administrativas');y=pxSection(doc,'Facilidades Administrativas',y,PDFX.amber);y=pxTableSafe(doc,y,['Tarjeta','Servicio','Turno','Entrada','Salida','Día de facilidad'],facilidades,{generated,pageSubtitle:'Continuación · Facilidades Administrativas',fontSize:6.4,headColor:PDFX.amber,columnStyles:{0:{cellWidth:20,halign:'center'},1:{cellWidth:36},2:{cellWidth:24,halign:'center'},3:{cellWidth:18,halign:'center'},4:{cellWidth:18,halign:'center'},5:{cellWidth:62}}});}
+  if(!total)pxNoData(doc,y,'No se encontraron registros para esta persona');
+  pxFooter(doc,generated);doc.save(`REPORTE_${pxSafeName(p.nombre||p.rfc)}.pdf`);
+}
+
 </script>
 </body>
 </html>
